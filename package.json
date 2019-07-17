@@ -1,0 +1,15 @@
+{
+  "name": "hello-worthy",
+  "version": "1.0.0",
+  "description": "Sample node application using kafka",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Noam Shabat",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "kafka-node": "^4.1.3"
+  }
+}
