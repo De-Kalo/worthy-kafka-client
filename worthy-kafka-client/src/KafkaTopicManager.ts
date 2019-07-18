@@ -1,8 +1,8 @@
-import { KafkaClient } from "kafka-node";
+import { CreateTopicRequest, KafkaClient } from "kafka-node";
 
 export class KafkaTopicManager {
      
-    client:KafkaClient
+    private readonly client:KafkaClient
     knownTopics:string[] = []
 
     constructor(client:KafkaClient) {
@@ -26,7 +26,7 @@ export class KafkaTopicManager {
     }
 
     async verifyTopics(listOfTopicNames: string[],create:boolean = false) {
-        let missing = listOfTopicNames.filter(x => !this.knownTopics.includes(name))
+        let missing = listOfTopicNames.filter(name => !this.knownTopics.includes(name))
 
         // we have some missing topics - do we need to create them?
         if ( missing ) {
@@ -42,16 +42,16 @@ export class KafkaTopicManager {
     }
   
     private async _createTopics(topicNames:string[]) {
-        let topicsToCreate = []
+        let topicsToCreate:CreateTopicRequest[] = []
         for (let unknownTopic of topicNames) {
             topicsToCreate.push({
                 topic: unknownTopic,
-                partitions: 1,
+                partitions: 1,          // TODO: change by environment!
                 replicationFactor: 1
             })
         }
         if (topicsToCreate.length) {
-            return new Promise(((resolve,reject) => {
+            return new Promise(((resolve:(v?:any) => void,reject:(v?:any) => void) => {
                 this.client.createTopics(topicsToCreate, (error, result) => {
                     // result is an array of any errors if a given topic could not be created
                     if (error) {

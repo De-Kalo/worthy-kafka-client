@@ -10,9 +10,12 @@
   "author": "Noam Shabat",
   "license": "UNLICENSED",
   "dependencies": {
-    "gulp-cli": "^2.2.0"
+    "@types/uuid": "^3.4.5",
+    "kafka-node": "^4.1.3",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "gulp-cli": "^2.2.0",
     "@types/node": "^12.6.6",
     "gulp": "^4.0.0",
     "gulp-typescript": "^5.0.1",
