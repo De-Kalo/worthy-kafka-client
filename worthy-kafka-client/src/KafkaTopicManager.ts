@@ -36,7 +36,7 @@ export class KafkaTopicManager {
             } else {
                 // first - update topics, then call this function again with create true.
                 await this._updateTopics()
-                this.verifyTopics(missing,true)
+                await this.verifyTopics(missing,true)
             }
         } 
     }
@@ -53,16 +53,16 @@ export class KafkaTopicManager {
         if (topicsToCreate.length) {
             return new Promise(((resolve:(v?:any) => void,reject:(v?:any) => void) => {
                 this.client.createTopics(topicsToCreate, (error, result) => {
-                    // result is an array of any errors if a given topic could not be created
-                    if (error) {
+                    // result is an array containing errors for failed creations.
+                    if (result.length) {
+                        console.log("Failed creating some topics",result)
                         reject(new Error(error))
                     }
                     // TODO: add creation log instead of console.
-                    console.log("Created topics: " + topicsToCreate.toString())
-                    resolve(result)
+                    console.log("Created topics: " + topicNames.toString())
+                    resolve()
                 });
             }).bind(this))
-            
         }
     }
 }

@@ -5,7 +5,7 @@ export class WorthyProducer {
 
     initialized:boolean=false
     producer:Producer
-    supportedTopics:string[]
+    supportedTopics:string[] = []
 
     async init(producer:Producer, supportedTopics:string[]) {
         if ( this.initialized ) {

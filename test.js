@@ -6,13 +6,14 @@ function onMessage(key,payload) {
 
 async function run() {
     console.log("TEST: Initializing kafka client")
-    WorthyKafkaClient.init(
+    await WorthyKafkaClient.init(
         ['worthy-hello'],
-        [{topicName:'worthy-hello-reply',callback:onMessage}])
+        [{topicName:'worthy-hello-reply',callback:onMessage}]
+        )
     console.log("TEST: Kafka client ready to receive messages")
 
     console.log("TEST: Producing message on hello-worthy")
-    WorthyKafkaClient
+    WorthyKafkaClient.produce("worthy-hello","Hey",{value:"Hello World"})
 }
 
 run()
