@@ -1,4 +1,4 @@
-const WorthyKafkaClient = require('../dist/main').WorthyKafkaClient
+const {WorthyKafkaClient} = require('@worthy-npm/worthy-kafka-client')
 
 function onMessage(payload) {
     console.log("TEST: got message with key '" + payload.key + "'",payload)

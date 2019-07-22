@@ -1,5 +1,5 @@
 // Importing WorthyKafkaClient
-const WorthyKafkaClient = require('../dist/main').WorthyKafkaClient
+const {WorthyKafkaClient} = require('@worthy-npm/worthy-kafka-client')
 
 // Defining a constant list of known topics for safe usage.
 const KNOWN_TOPICS = {

@@ -1,4 +1,4 @@
-import {Consumer, KafkaClient, Producer, RetryOptions} from 'kafka-node'
+import {Consumer, KafkaClient, Producer} from 'kafka-node'
 import { KafkaTopicManager } from './KafkaTopicManager';
 import {ConsumerRequest, ProducerReuqest} from "./worthyTypes";
 import {WorthyProducer} from "./WorthyProducer";
@@ -6,7 +6,7 @@ import {WorthyConsumer} from "./WorthyConsumer";
 import {v4 as uuidv4} from 'uuid'
 import {KafkaOptions} from "./KafkaOptions";
 
-class WorthyKafkaClient {
+export class WorthyKafkaClient {
     private readonly _topicManager:KafkaTopicManager
     private readonly _client:KafkaClient
     private readonly _producer:WorthyProducer
