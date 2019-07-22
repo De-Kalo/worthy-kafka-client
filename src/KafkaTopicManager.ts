@@ -1,14 +1,14 @@
 import { CreateTopicRequest, KafkaClient } from "kafka-node";
+import {KafkaOptions} from "./KafkaOptions";
 
 export class KafkaTopicManager {
      
     private readonly client:KafkaClient
-    knownTopics:string[] = []
+    private _knownTopics:string[] = []
 
     constructor(client:KafkaClient) {
         this.client = client
-        this._updateTopics()
-    } 
+    }
 
     private async _updateTopics() {
         // return promise for async support
@@ -19,35 +19,36 @@ export class KafkaTopicManager {
                     reject(err)
                 }
                 // iterate over res topics. see the 'listTopics' of Admin (node-kafka) for data structure
-                this.knownTopics = Object.keys(res[1].metadata)
+                this._knownTopics = Object.keys(res[1].metadata)
                 resolve()
             })
         }).bind(this))
     }
 
-    async verifyTopics(listOfTopicNames: string[],create:boolean = false) {
-        let missing = listOfTopicNames.filter(name => !this.knownTopics.includes(name))
+    async verifyTopics(topics: string[]) : Promise<string[]> {
+        let missing = topics.filter(name => !this._knownTopics.includes(name))
 
         // we have some missing topics - do we need to create them?
         if ( missing ) {
+            // first - update topics, then call this function again with create true.
+            await this._updateTopics()
+            // check again for missing topics
+            missing = topics.filter(name => !this._knownTopics.includes(name))
             // if create specified - create them. create is only specified after an update to the known topics has been performed.
-            if ( create ) {
-                await this._createTopics(missing)
-            } else {
-                // first - update topics, then call this function again with create true.
-                await this._updateTopics()
-                await this.verifyTopics(missing,true)
+            if ( missing ) {
+                return await this._createTopics(missing)
             }
-        } 
+        }
+        return []
     }
   
-    private async _createTopics(topicNames:string[]) {
+    private async _createTopics(topics:string[]) : Promise<string[]> {
         let topicsToCreate:CreateTopicRequest[] = []
-        for (let unknownTopic of topicNames) {
+        for (let topic of topics) {
             topicsToCreate.push({
-                topic: unknownTopic,
-                partitions: 1,          // TODO: change by environment!
-                replicationFactor: 1
+                topic: topic,
+                partitions: KafkaOptions.topic.partitions,
+                replicationFactor: KafkaOptions.topic.replication
             })
         }
         if (topicsToCreate.length) {
@@ -59,10 +60,12 @@ export class KafkaTopicManager {
                         reject(new Error(error))
                     }
                     // TODO: add creation log instead of console.
-                    console.log("Created topics: " + topicNames.toString())
-                    resolve()
+                    console.log("Created topics: " + topics.toString())
+                    resolve(topics)
                 });
             }).bind(this))
+        } else {
+            return []
         }
     }
 }
