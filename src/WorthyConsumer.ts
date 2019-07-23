@@ -1,10 +1,10 @@
 import {Consumer, Message} from "kafka-node";
-import {ConsumerRequest, WorthyEvent} from "./worthyTypes";
+import {ConsumerDescription, WorthyEvent} from "./WorthyTypes";
 
 let instance:WorthyConsumer
 export class WorthyConsumer {
     private readonly _consumer:Consumer
-    private topicRouter:ConsumerRequest = {}
+    private topicRouter:ConsumerDescription = {}
 
     constructor(consumer:Consumer) {
         this._consumer = consumer
@@ -18,7 +18,7 @@ export class WorthyConsumer {
         instance = this // the onMessage
     }
 
-    addTopics(topics:ConsumerRequest) {
+    addTopics(topics:ConsumerDescription) {
         return new Promise(((resolve:(v?:any) => void,reject:(v?:any)=>void) => {
             this._consumer.addTopics(Object.keys(topics),(err:any,added:string[]) => {
                 if ( err ) {

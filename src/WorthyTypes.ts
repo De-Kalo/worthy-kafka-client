@@ -1,5 +1,6 @@
+import { Consumer } from "kafka-node";
 
-export type ConsumerRequest = {
+export type ConsumerDescription = {
     // topic name
     [key:string]:{
         // key name - 'default' as a wildchar all keys that aren't spoken for.
@@ -7,7 +8,7 @@ export type ConsumerRequest = {
     }
 }
 
-export type ProducerReuqest = string[]
+export type ProducerDescription = {[key:string]:string[]}
 
 export interface WorthyEvent {
     topic:string,
@@ -20,3 +21,7 @@ export interface WorthyEvent {
     payload:any                         // application data.
 }
 
+export interface WorthyKafkaClientDescription {
+    consuming:ConsumerDescription,
+    producing:ProducerDescription
+}

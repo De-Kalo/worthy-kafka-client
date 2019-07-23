@@ -1,26 +1,30 @@
-const {WorthyKafkaClient} = require('@worthy-npm/worthy-kafka-client')
 
-function onMessage(payload) {
-    console.log("TEST: got message with key '" + payload.key + "'",payload)
-}
-
-// Defining a constant list of known topics for safe usage.
+// Importing WorthyKafkaClient
+const {WorthyKafkaClient} = require('../dist/main')
+// Defining a constant list of known topics and keys for safe usage.
 const KNOWN_TOPICS = {
-    HELLO_WORTHY:"hello-worthy",
-    HELLO_WORTHY_REPLY:"hello-worthy-reply"
+   ITEMS:{
+       _name:"items",
+       ITEM_CREATED:"ITEM_CREATED",
+       ESTIMATION_NEEDED:"ESTIMATION_NEEDED",
+       ITEM_ESTIMATION:"ITEM_ESTIMATION"
+   }
 }
-
-async function run() {
-    console.log("TEST: Initializing kafka client")
-    await WorthyKafkaClient.init(
-        [KNOWN_TOPICS.HELLO_WORTHY],
+// this is the main function that initializes the service
+async function start() {
+   console.log("Initializing kafka client")
+   await WorthyKafkaClient.init({
+           producing:{
+               [KNOWN_TOPICS.ITEMS._name]:[KNOWN_TOPICS.ITEMS.ITEM_CREATED]
+           }
+       })
+    
+    WorthyKafkaClient.produce(KNOWN_TOPICS.ITEMS._name,
+        KNOWN_TOPICS.ITEMS.ITEM_CREATED,
         {
-            [KNOWN_TOPICS.HELLO_WORTHY_REPLY]: {"default": onMessage}
+            itemId:2
         })
-    console.log("TEST: Kafka client ready to receive messages")
-
-    console.log("TEST: Producing message on hello-worthy")
-    WorthyKafkaClient.produce(KNOWN_TOPICS.HELLO_WORTHY,"Hey",{value:"Hello World"})
 }
 
-run()
+// run the service,
+start()

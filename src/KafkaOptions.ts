@@ -1,5 +1,5 @@
 import {v4 as uuidv4} from "uuid";
-import {ConsumerOptions, KafkaClientOptions, ProduceRequest, ProducerOptions} from "kafka-node";
+import {ConsumerOptions, KafkaClientOptions, ProducerOptions} from "kafka-node";
 
 interface IKafkaOptions  {
     connect:KafkaClientOptions,

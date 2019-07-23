@@ -1,14 +1,15 @@
 import {KeyedMessage, Producer} from 'kafka-node'
-import {WorthyEvent} from "./worthyTypes";
+import {WorthyEvent} from "./WorthyTypes";
 import {v4 as uuidv4} from 'uuid'
+import { ProducerDescription } from './WorthyTypes';
 
 export class WorthyProducer {
 
     private _initialized:boolean=false
     private _producer:Producer
-    private _supportedTopics:string[] = []
+    private _supportedTopics:ProducerDescription = {}
 
-    async init(producer:Producer, registerTopics:string[]) {
+    async init(producer:Producer, registerTopics:ProducerDescription) {
         if ( this._initialized ) {
             throw new Error("Already initialized producer..")
         }
@@ -16,7 +17,10 @@ export class WorthyProducer {
         return new Promise(((resolve:(v?:any)=>void,reject:(v?:any)=>void) => {
             this._producer.on("ready",() => {
                 this._initialized = true
-                this._supportedTopics = registerTopics
+                // clone input
+                for ( let topic in registerTopics) {
+                    this._supportedTopics[topic] = registerTopics.topic.slice(0)
+                }
                 resolve()
             })
         }).bind(this))
@@ -24,8 +28,9 @@ export class WorthyProducer {
 
     async produce(topic:string,key:string,payload:any,contextId:string) {
         // some basic input verifications
-        if ( !this._supportedTopics.includes(topic) ) {
-            throw new Error("Unsupported topic '" + topic + "'. Known topics are: " + this._supportedTopics.toString() )
+        if ( !this._supportedTopics[topic] || !this._supportedTopics[topic].includes(key)  ) {
+            throw new Error("Unsupported topic/key '" + topic + "/"+key+"'. Known topics are: " + 
+                            JSON.stringify(this._supportedTopics))
         }
         if ( !this._initialized ) {
             throw new Error("Producer not yet initialized! did you call the 'init' function?")

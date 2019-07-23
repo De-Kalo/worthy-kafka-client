@@ -1,10 +1,10 @@
 import {Consumer, KafkaClient, Producer} from 'kafka-node'
 import { KafkaTopicManager } from './KafkaTopicManager';
-import {ConsumerRequest, ProducerReuqest} from "./worthyTypes";
 import {WorthyProducer} from "./WorthyProducer";
 import {WorthyConsumer} from "./WorthyConsumer";
 import {v4 as uuidv4} from 'uuid'
 import {KafkaOptions} from "./KafkaOptions";
+import { WorthyKafkaClientDescription } from './WorthyTypes';
 
 export class WorthyKafkaClient {
     private readonly _topicManager:KafkaTopicManager
@@ -19,18 +19,23 @@ export class WorthyKafkaClient {
         this._topicManager = new KafkaTopicManager(this._client)
     }
 
-    public async init(producing?:ProducerReuqest,consuming?:ConsumerRequest) {
+    public async init(clientDescription:WorthyKafkaClientDescription) {
+        clientDescription.producing = clientDescription.producing || {}
+        clientDescription.consuming = clientDescription.consuming || {}
+        let producingTopics = Object.keys(clientDescription.producing)
+        let consumingTopics = Object.keys(clientDescription.consuming)
+
         // initialize producer if needed
-        if ( producing && producing.length > 0 ) {
+        if ( clientDescription.producing && producingTopics.length > 0 ) {
             // first verify all producing topics exist.
-            await this._topicManager.verifyTopics(producing)
+            await this._topicManager.verifyTopics(producingTopics)
             // safe to initialize producer.
-            await this._producer.init(new Producer(this._client,KafkaOptions.producer.options),producing);
+            await this._producer.init(new Producer(this._client,KafkaOptions.producer.options),clientDescription.producing);
         }
         // initialize consumer if needed.
-        if ( consuming && Object.keys(consuming).length > 0 ) {
-            await this._topicManager.verifyTopics(Object.keys(consuming))
-            this._consumer.addTopics(consuming)
+        if ( clientDescription.consuming && consumingTopics.length > 0 ) {
+            await this._topicManager.verifyTopics(consumingTopics)
+            this._consumer.addTopics(clientDescription.consuming)
         }
     }
 
