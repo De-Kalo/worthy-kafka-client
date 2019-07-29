@@ -73,4 +73,9 @@ switch ( process.env.STAGE ) {
         options.topic.partitions = 3
 }
 
+// required for clients that load process env after process is loaded.
+export function reinitEnv() {
+    options.connect.kafkaHost = process.env.KAFKA_HOST + ":" + process.env.KAFKA_PORT
+    options.consumer.groupId = process.env.SERVICE_NAME+"-"+process.env.ENV
+}
 export const KafkaOptions:IKafkaOptions = options

@@ -15,6 +15,7 @@ export interface WorthyEvent {
     key:string,
     id:string,                          // GUID (?)
     created:Date,
+    received?:Date,
     originService:string                // service name.
     originServiceVersion:string         // version of the service that sent the event
     contextId:string                    // operation context - it's the developer responsibility to maintain this throughout the code.

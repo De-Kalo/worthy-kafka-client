@@ -1,4 +1,4 @@
-import {KeyedMessage, Producer} from 'kafka-node'
+import {Producer} from 'kafkajs'
 import {WorthyEvent} from "./WorthyTypes";
 import {v4 as uuidv4} from 'uuid'
 import { ProducerDescription } from './WorthyTypes';
@@ -14,16 +14,12 @@ export class WorthyProducer {
             throw new Error("Already initialized producer..")
         }
         this._producer = producer
-        return new Promise(((resolve:(v?:any)=>void,reject:(v?:any)=>void) => {
-            this._producer.on("ready",() => {
-                this._initialized = true
-                // clone input
-                for ( let topic in registerTopics) {
-                    this._supportedTopics[topic] = registerTopics.topic.slice(0)
-                }
-                resolve()
-            })
-        }).bind(this))
+        await this._producer.connect()
+        this._initialized = true
+        // clone input
+        for ( let topic in registerTopics) {
+            this._supportedTopics[topic] = registerTopics[topic].slice(0)
+        }
     }
 
     async produce(topic:string,key:string,payload:any,contextId:string) {
@@ -48,16 +44,9 @@ export class WorthyProducer {
             originServiceVersion:"v1" // TODO
         }
 
-        // return promise to support await
-        return new Promise(((resolve:(v?:any)=>void,reject:(v?:any)=>void) => {
-            this._producer.send([{
-                topic:topic,messages:new KeyedMessage(key,JSON.stringify(event))
-            }],(err:any,data:any) => {
-                if ( err ) {
-                    reject(err)
-                }
-                resolve(data)
-            })
-        }).bind(this))
+        await this._producer.send({
+            topic:topic,
+            messages:[{key:new Buffer(key),value:new Buffer(JSON.stringify(event))}]
+        })
     }
 }
