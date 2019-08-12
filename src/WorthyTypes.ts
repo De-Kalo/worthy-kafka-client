@@ -1,4 +1,3 @@
-import { Consumer } from "kafka-node";
 
 export type ConsumerDescription = {
     // topic name

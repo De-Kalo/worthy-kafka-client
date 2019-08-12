@@ -1,5 +1,6 @@
 import {Admin, ITopicConfig, Kafka} from "kafkajs";
 import {KafkaOptions} from "./KafkaOptions";
+import {execSync} from 'child_process'
 
 export class KafkaTopicManager {
      
@@ -42,14 +43,27 @@ export class KafkaTopicManager {
     }
   
     private async _createTopics(topics:string[]) : Promise<string[]> {
+        // make sure we're connected before running any operation.
         await this._connect()
         let topicsToCreate:ITopicConfig[] = []
         for (let topic of topics) {
-            topicsToCreate.push({
-                topic: topic,
-                numPartitions: KafkaOptions.topic.partitions,
-                replicationFactor: KafkaOptions.topic.replication
-            })
+            // when creating the topic we don't need the auto-generated kafka prefix.
+            topic = topic.replace(process.env.KAFKA_PREFIX,"")
+
+            console.log("Creating topic " + topic)
+            // in development environment - we can create using kafka api.
+            // in heroku cloud - we need to use the heroku kafka plugin via the cli. (at least while we're in a shared environment.
+            if ( process.env.ENV === "development" ) {
+                topicsToCreate.push({
+                    topic: topic,
+                    numPartitions: KafkaOptions.topic.partitions,
+                    replicationFactor: KafkaOptions.topic.replication
+                })
+            } else {
+                let result = execSync("heroku kafka:topics:create " + topic + " --partitions " + KafkaOptions.topic.partitions +
+                    " --replication-factor " + KafkaOptions.topic.replication + " -a " + process.env.HEROKU_APP_NAME)
+                console.log("Topic created: " + result)
+            }
         }
         await this._admin.createTopics({topics:topicsToCreate, waitForLeaders:true})
         console.log("Created topics:",topics)

@@ -47,13 +47,14 @@ export class WorthyConsumer {
                 let value = message.value ? JSON.parse(message.value.toString()) : ""
                 if ( typeof value === "object" ) {
                     value.received = new Date().toISOString()
+                    value.topic = value.topic.replace(process.env.KAFKA_PREFIX,"").replace(process.env.ENV+".","")
                 }
                 // is the message key registered with a specific call function?
                 if ( router[topic][message.key.toString()] ) {
-                    router[topic][message.key.toString()](value)
+                    await router[topic][message.key.toString()](value)
                 } // if not - do we have a default callback for this topic?
                 else if ( router[topic].default ) {
-                    router[topic].default(value)
+                    await router[topic].default(value)
                 }
             } catch (err) {
                 console.log("Error! failed processing message:",message,err)
