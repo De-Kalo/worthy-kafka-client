@@ -49,4 +49,10 @@ export class WorthyProducer {
             messages:[{key:new Buffer(key),value:new Buffer(JSON.stringify(event))}]
         })
     }
+
+    public async shutdown() {
+        await this._producer.disconnect()
+        this._initialized = false
+        this._supportedTopics = {}
+    }
 }

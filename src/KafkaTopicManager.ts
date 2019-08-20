@@ -1,6 +1,10 @@
 import {Admin, ITopicConfig, Kafka} from "kafkajs";
 import {KafkaOptions} from "./KafkaOptions";
-import {execSync} from 'child_process'
+import { HerokuKafkaCliRunner } from "./HerokuKafkaCliRunner";
+
+export function sleep(ms:number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 export class KafkaTopicManager {
      
@@ -8,15 +12,28 @@ export class KafkaTopicManager {
     private _connected:boolean = false
     private _knownTopics:string[] = []
 
+    /**
+     * Constructor - Initializes the Admin structure from kafkajs
+     * @param client
+     */
     constructor(client:Kafka) {
         this._admin = client.admin()
     }
 
+    /**
+     * Must run the connect method at least once before performing any topic related operation.
+     * @private
+     */
     private async _connect() {
         if ( !this._connected ) {
             await this._admin.connect()
         }
     }
+
+    /**
+     * Get the list of available topics
+     * @private
+     */
     private async _updateTopics() {
         // topic metadata contains all topics...
         let MD = await this._admin.fetchTopicMetadata({topics:[]})
@@ -45,28 +62,87 @@ export class KafkaTopicManager {
     private async _createTopics(topics:string[]) : Promise<string[]> {
         // make sure we're connected before running any operation.
         await this._connect()
+
+        // prepare topic creation structure, and iterate all topics
         let topicsToCreate:ITopicConfig[] = []
         for (let topic of topics) {
             // when creating the topic we don't need the auto-generated kafka prefix.
             topic = topic.replace(process.env.KAFKA_PREFIX,"")
 
-            console.log("Creating topic " + topic)
-            // in development environment - we can create using kafka api.
-            // in heroku cloud - we need to use the heroku kafka plugin via the cli. (at least while we're in a shared environment.
-            if ( process.env.ENV === "development" ) {
+            // if using heroku cli - create the topic (the cli doesn't allow multiple topic creation in single command.
+            // if not using the cli - add to the create list for later processing.
+            if ( KafkaOptions.useHerokuCli ) {
+                HerokuKafkaCliRunner.createTopic(topic)
+            } else {
                 topicsToCreate.push({
                     topic: topic,
                     numPartitions: KafkaOptions.topic.partitions,
                     replicationFactor: KafkaOptions.topic.replication
                 })
-            } else {
-                let result = execSync("heroku kafka:topics:create " + topic + " --partitions " + KafkaOptions.topic.partitions +
-                    " --replication-factor " + KafkaOptions.topic.replication + " -a " + process.env.HEROKU_APP_NAME)
-                console.log("Topic created: " + result)
             }
         }
-        await this._admin.createTopics({topics:topicsToCreate, waitForLeaders:true})
-        console.log("Created topics:",topics)
+        // now that we're out of the loop, create the collected list (when not using heroku cli)
+        if ( !KafkaOptions.useHerokuCli ) {
+            await this._admin.createTopics({topics: topicsToCreate, waitForLeaders: true})
+        }
+
+        // now that all topics were created, wait for all of them to be ready
+        for ( let topic of topics ) {
+            // when creating the topic we don't need the auto-generated kafka prefix.
+            topic = topic.replace(process.env.KAFKA_PREFIX,"")
+            await this._waitForTopic(topic)
+        }
+
         return topics
+    }
+
+
+    public async deleteTopic(topic:string) {
+        if ( KafkaOptions.useHerokuCli  ) {
+            HerokuKafkaCliRunner.deleteTopic(topic)
+        } else {
+            await this._admin.deleteTopics({topics:[topic],timeout:20000})
+        }
+
+        await this._waitForTopic(topic,false)
+    }
+
+    public async topicExists(topic:string) {
+        try {
+            if (KafkaOptions.useHerokuCli) {
+                HerokuKafkaCliRunner.topicInfo(topic)
+            } else {
+                await this._admin.fetchTopicMetadata({topics: [topic]})
+            }
+            // when the command to get info succeeds it means the topic exists.
+            return true
+        }
+        catch (e) {
+            return false
+        }
+    }
+
+    public async createTopic(topic:string) {
+        if ( KafkaOptions.useHerokuCli ) {
+            HerokuKafkaCliRunner.createTopic(topic)
+        } else {
+            await this._admin.createTopics({topics: [{
+                    topic: topic,
+                    numPartitions: KafkaOptions.topic.partitions,
+                    replicationFactor: KafkaOptions.topic.replication
+                }], waitForLeaders: true})
+        }
+
+        await this._waitForTopic(topic)
+    }
+
+    private async _waitForTopic(topic:string,existance:boolean = true) {
+        while ( await this.topicExists(topic) !== existance ) {
+            await sleep(1000)
+        }
+    }
+
+    public async shutdown() {
+        await this._admin.disconnect()
     }
 }

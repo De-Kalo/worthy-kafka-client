@@ -7,7 +7,8 @@ interface IKafkaOptions  {
     topic: {
         replication:number,
         partitions:number
-    }
+    },
+    useHerokuCli?:boolean
 }
 
 let options:IKafkaOptions = {
@@ -17,7 +18,7 @@ let options:IKafkaOptions = {
         requestTimeout: 5000
     },
     consumer:{
-        groupId: process.env.SERVICE_NAME+"-"+process.env.ENV, //consumer group id, TODO  - use consumer group
+        groupId: process.env.SERVICE_NAME+"-"+process.env.ENV,
         allowAutoTopicCreation:false,
         maxInFlightRequests:5,
         heartbeatInterval:3000,
@@ -65,7 +66,7 @@ function verifyEnvironment() {
 
 // required for clients that load process env after process is loaded.
 export function reinitEnv() {
-
+    // some sanity checks
     verifyEnvironment()
 
     // change options by environment.
@@ -80,6 +81,7 @@ export function reinitEnv() {
             options.topic.partitions = 1
     }
 
+    // heroku kafka add on adds irrelevant prefix to the urls. fix it.
     const kafkaUrls = process.env.KAFKA_URL.replace(/kafka\+ssl:\/\//g,"")
     options.connect.brokers = kafkaUrls.split(",")
 
@@ -92,7 +94,7 @@ export function reinitEnv() {
         }
     }
 
-    options.consumer.groupId = process.env.SERVICE_NAME+"-"+process.env.ENV
-    console.log("Connection options options are:",options.connect)
+    options.consumer.groupId = (process.env.KAFKA_PREFIX || "") + process.env.SERVICE_NAME+"-"+process.env.ENV,
+    options.useHerokuCli = process.env.ENV !== "development"
 }
 export const KafkaOptions:IKafkaOptions = options

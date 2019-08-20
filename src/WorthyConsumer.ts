@@ -3,6 +3,7 @@ import {ConsumerDescription} from "./WorthyTypes";
 
 let instance:WorthyConsumer
 export class WorthyConsumer {
+    private consumerInit:Promise<void>
     private readonly _consumer:Consumer
     private topicRouter:ConsumerDescription = {}
 
@@ -12,6 +13,15 @@ export class WorthyConsumer {
         // in on message. store it in 'instance'. the WorthyKafkaClient is singleton anyway, so any proper use of the library
         // will effectively cause this class to be singleton as well.
         instance = this // the onMessage
+
+        this.consumerInit = this._consumer.run({
+            eachMessage: instance.onMessage
+        })
+    }
+
+    async waitInit() {
+        await this.consumerInit
+        console.log("Consumer ready to receive requests")
     }
 
     async addTopics(topics:ConsumerDescription) {
@@ -22,11 +32,6 @@ export class WorthyConsumer {
             } catch(err) {
                 console.log("Failed subscribing to topic " + topic,err)
             }
-        }
-        await this._consumer.run({
-            eachMessage: instance.onMessage
-        })
-        for ( let topic in topics ) {
             // adding to router. to consider - to we need to verify the function was not already registered?
             this.topicRouter[topic] = topics[topic]
         }
@@ -62,5 +67,9 @@ export class WorthyConsumer {
         } else {
             throw new Error("Unexpected unknown topic - " + topic + " with message:" + JSON.stringify(message))
         }
+    }
+
+    public async shutdown() {
+        await this._consumer.disconnect()
     }
 }
