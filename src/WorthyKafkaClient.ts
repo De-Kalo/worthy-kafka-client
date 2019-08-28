@@ -63,17 +63,14 @@ export class WorthyKafkaClient {
             producing:{}
         }
 
-        if ( clientDescriptionIn && clientDescriptionIn.consuming ) {
-            for ( let topicName in clientDescriptionIn.consuming ) {
-                let newName = this._normalizeTopicName(topicName)
-                newDescription.consuming[newName] = clientDescriptionIn.consuming[topicName]
-            }
-        }
-
-        if ( clientDescriptionIn && clientDescriptionIn.producing ) {
-            for ( let topicName in clientDescriptionIn.producing ) {
-                let newName = this._normalizeTopicName(topicName)
-                newDescription.producing[newName] = clientDescriptionIn.producing[topicName]
+        if ( clientDescriptionIn ) {
+            for ( let key in clientDescriptionIn ) {
+                // type normalization for typescript compiler...
+                let _key = <'consuming'|'producing'>key
+                for ( let topicName in clientDescriptionIn[<'consuming'|'producing'>key]) {
+                    let newName = this._normalizeTopicName(topicName)
+                    newDescription[_key][newName] = clientDescriptionIn[_key][topicName]
+                }
             }
         }
 
@@ -188,17 +185,11 @@ export class WorthyKafkaClient {
      * Shutdown the client. use before terminating the process.
      */
     public async shutdown() {
-        if ( this._consumer ) {
-            await this._consumer.shutdown()
-        }
-
-        if ( this._producer ) {
-            await this._producer.shutdown()
-        }
-
-        if ( this._topicManager ) {
-            await this._topicManager.shutdown()
-        }
+        [this._consumer,this._producer,this._topicManager].forEach(async (obj) => {
+            if ( obj ) {
+                await obj.shutdown()
+            }
+        })
 
         if ( this._client ) {
             this._client = null

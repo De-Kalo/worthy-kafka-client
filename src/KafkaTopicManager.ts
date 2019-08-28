@@ -27,6 +27,7 @@ export class KafkaTopicManager {
     private async _connect() {
         if ( !this._connected ) {
             await this._admin.connect()
+            this._connected = true
         }
     }
 
@@ -136,8 +137,14 @@ export class KafkaTopicManager {
         await this._waitForTopic(topic)
     }
 
-    private async _waitForTopic(topic:string,existance:boolean = true) {
-        while ( await this.topicExists(topic) !== existance ) {
+    private async _waitForTopic(topic:string,existence:boolean = true, timeout:number=90000) {
+        let start = new Date().getTime()
+        while ( await this.topicExists(topic) !== existence ) {
+            // verifying timeout not passed.
+            if ( new Date().getTime() - start > timeout ) {
+                throw new Error("Timeout waiting for topic " + topic + " to be in state: exists:"+existence)
+            }
+
             await sleep(1000)
         }
     }

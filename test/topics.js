@@ -107,5 +107,5 @@ async function teardown() {
 runTests().then(() => {
     log("All tests complete!")
 }).catch((reason) => {
-    log("Error! ")
+    log("Error! ",reason)
 })
