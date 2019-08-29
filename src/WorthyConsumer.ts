@@ -1,5 +1,6 @@
 import {Consumer, EachMessagePayload} from "kafkajs";
 import {ConsumerDescription} from "./WorthyTypes";
+import { Logger } from "./Logger";
 
 let instance:WorthyConsumer
 export class WorthyConsumer {
@@ -9,25 +10,22 @@ export class WorthyConsumer {
 
     constructor(consumer:Consumer) {
         this._consumer = consumer
-        // the onMessage function cannot be bound to this, because it is bound to the kafka consumer. we need access to 'this'
-        // in on message. store it in 'instance'. the WorthyKafkaClient is singleton anyway, so any proper use of the library
-        // will effectively cause this class to be singleton as well.
-        instance = this // the onMessage
-
-        this.consumerInit = this._consumer.run({
-            eachMessage: instance.onMessage
-        })
+        instance = this
     }
 
     async waitInit() {
-        await this.consumerInit
-        console.log("Consumer ready to receive requests")
+        await this._consumer.run({
+            eachMessage: instance.onMessage
+        })
+        // await this.consumerInit
+        Logger.debug("Consumer ready to receive requests")
     }
 
     async addTopics(topics:ConsumerDescription) {
         // return new Promise(((resolve:(v?:any) => void,reject:(v?:any)=>void) => {
         for ( let topic in topics ) {
             try {
+                Logger.debug("Subscribing to topic", topic )
                 await this._consumer.subscribe({topic})
             } catch(err) {
                 console.log("Failed subscribing to topic " + topic,err)
@@ -54,6 +52,7 @@ export class WorthyConsumer {
                     value.received = new Date().toISOString()
                     value.topic = value.topic.replace(process.env.KAFKA_PREFIX,"").replace(process.env.ENV+".","")
                 }
+                Logger.debug("Got message",value)
                 // is the message key registered with a specific call function?
                 if ( router[topic][message.key.toString()] ) {
                     await router[topic][message.key.toString()](value)

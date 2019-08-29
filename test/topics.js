@@ -14,7 +14,7 @@ function log() {
     messages.push.apply(messages,Object.values(arguments))
     console.log.apply(console,messages)
 }
-
+ 
 function setupLocalEnv() {
     log("Setting up local environment")
     process.env.ENV = 'development'
@@ -50,7 +50,8 @@ async function runTests() {
     // Test qa env
     log("Setting up environment variables to fit qa env")
     setupQaEnv()
-    await runTopicTests()
+    await startOnlineTest()
+    //await runTopicTests()
 }
 
 async function deleteTestTopic() {
@@ -89,14 +90,53 @@ async function runTopicTests() {
     await createTestTopic()
     await deleteTestTopic()
 
-    log("Re-initializing environment with predefined topic requested.")
+    log("Re-initializing environment with predefined consume topic that doesn't requested.")
     await WorthyKafkaClient.shutdown()
     await WorthyKafkaClient.init({
         consuming:{[TEST_TOPIC_NAME]:{default:TEST_TOPIC_NAME}}
     })
+
+    log("Re-initializing environment with predefined consume topic that already exists.")
+    await WorthyKafkaClient.shutdown()
+    await WorthyKafkaClient.init({
+        consuming:{[TEST_TOPIC_NAME]:{default:TEST_TOPIC_NAME}}
+    })
+
     await deleteTestTopic()
+
+    log("Re-initializing environment with predefined produce topic that doesn't exist requested.")
+    await WorthyKafkaClient.shutdown()
+    await WorthyKafkaClient.init({
+        producing:{[TEST_TOPIC_NAME]:[TEST_TOPIC_NAME]}
+    })
+
+    log("Re-initializing environment with predefined produce topic that already exists.")
+    await WorthyKafkaClient.shutdown()
+    await WorthyKafkaClient.init({
+        producing:{[TEST_TOPIC_NAME]:[TEST_TOPIC_NAME]}
+    })
+
+    await deleteTestTopic()
+
+    log("Re-initializing environment with predefined consume/produce topic that doesn't exists.")
+    await WorthyKafkaClient.shutdown()
+    await WorthyKafkaClient.init({
+        consuming:{[TEST_TOPIC_NAME]:{default:TEST_TOPIC_NAME}},
+        producing:{[TEST_TOPIC_NAME]:[TEST_TOPIC_NAME]}
+    })
+
+    await deleteTestTopic()
+
     await teardown()
     await WorthyKafkaClient.shutdown()
+}
+
+async function startOnlineTest() {
+    await WorthyKafkaClient.init({
+        producing:{"kafka_lib_test":["START_TEST_SUITE","TEST_SUITE_FINISHED"]}
+    })
+    await WorthyKafkaClient.produce("kafka_lib_test","START_TEST_SUITE",{})
+    log("Produced the start event")
 }
 
 async function teardown() {

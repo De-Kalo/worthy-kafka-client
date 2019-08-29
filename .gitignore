@@ -1,3 +1,6 @@
 node_modules/
 dist/
 .idea/
+kafka_ca.crt
+kafka_cert.pem
+kafka_key.pem

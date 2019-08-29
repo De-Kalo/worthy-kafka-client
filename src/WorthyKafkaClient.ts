@@ -44,9 +44,6 @@ export class WorthyKafkaClient {
         this._producer = new WorthyProducer()
         this._consumer = new WorthyConsumer(this._client.consumer(KafkaOptions.consumer))
         this._topicManager = new KafkaTopicManager(this._client)
-
-        // we need to wait for the consumer to be ready to receive messages before returning context.
-        await this._consumer.waitInit()
     }
 
     // from the service perspective, the topic name is just a logical name for the topic.
@@ -104,6 +101,9 @@ export class WorthyKafkaClient {
         // initialize consumer
         await this._topicManager.verifyTopics(consumingTopics)
         await this._consumer.addTopics(clientDescription.consuming)
+
+        // we need to wait for the consumer to be ready to receive messages before returning context.
+        await this._consumer.waitInit()
     }
 
     /**
