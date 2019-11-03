@@ -40,6 +40,7 @@ export class WorthyConsumer {
      * @param message
      */
     public async onMessage(payload:EachMessagePayload) {
+        Logger.debug("Got message " + payload.message.key)
         let message = payload.message
         let topic = payload.topic
         let router = instance.topicRouter
@@ -52,7 +53,7 @@ export class WorthyConsumer {
                     value.received = new Date().toISOString()
                     value.topic = value.topic.replace(process.env.KAFKA_PREFIX,"").replace(process.env.ENV+".","")
                 }
-                Logger.debug("Got message",value)
+                Logger.debug("Processing message",value)
                 // is the message key registered with a specific call function?
                 if ( router[topic][message.key.toString()] ) {
                     await router[topic][message.key.toString()](value)
@@ -64,6 +65,7 @@ export class WorthyConsumer {
                 console.log("Error! failed processing message:",message,err)
             }
         } else {
+            Logger.debug("Got message from unexpected topic " + topic)
             throw new Error("Unexpected unknown topic - " + topic + " with message:" + JSON.stringify(message))
         }
     }
