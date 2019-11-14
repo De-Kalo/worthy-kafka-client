@@ -1,8 +1,10 @@
 import { Producer } from 'kafkajs'
 import { v4 as uuidv4 } from 'uuid'
-import { Logger } from './Logger'
 import { IWorthyEvent } from './WorthyTypes'
 import { IProducerDescription } from './WorthyTypes'
+
+import { getLog } from '@worthy-npm/worthy-logger'
+const Log = getLog('WorthyKafkaClient')
 
 export class WorthyProducer {
 
@@ -47,7 +49,7 @@ export class WorthyProducer {
 			topic,
 		}
 
-		Logger.debug('Producing to topic ', topic)
+		Log.debug('Producing to topic ', topic)
 		await this._producer.send({
 			messages:[{ key:new Buffer(key), value:new Buffer(JSON.stringify(event))}],
 			topic,

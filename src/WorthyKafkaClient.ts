@@ -8,6 +8,9 @@ import { WorthyConsumer } from './WorthyConsumer'
 import { WorthyProducer } from './WorthyProducer'
 import { IWorthyKafkaClientDescription } from './WorthyTypes'
 
+import { getLog, reinitLog } from '@worthy-npm/worthy-logger'
+const Log = getLog('WorthyKafkaClient')
+
 export class WorthyKafkaClient {
 	private _topicManager:KafkaTopicManager
 	private _client:Kafka
@@ -83,6 +86,8 @@ export class WorthyKafkaClient {
 	 * @param clientDescriptionIn describes the topics and keys a client is planning to consume and produce.
 	 */
 	public async init(clientDescriptionIn:IWorthyKafkaClientDescription) {
+		reinitLog('WorthyKafkaClient', process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL || 'error')
+
 		// basic setup of required objects.
 		await this._clientSetup()
 
@@ -167,9 +172,9 @@ export class WorthyKafkaClient {
 				await sleep(2000)
 			} while (!HerokuKafkaCliRunner.isConsumerGroup(groupid))
 
-			console.log('Consumer group ' + groupid + ' created.')
+			Log.info('Consumer group ' + groupid + ' created.')
 		} else {
-			console.log('Consumer group ' + groupid + ' exists.')
+			Log.info('Consumer group ' + groupid + ' exists.')
 		}
 	}
 
