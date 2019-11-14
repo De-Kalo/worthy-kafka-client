@@ -1,3 +1,3 @@
-import {instance} from './WorthyKafkaClient'
+import { instance } from './WorthyKafkaClient'
 
 export const WorthyKafkaClient = instance
