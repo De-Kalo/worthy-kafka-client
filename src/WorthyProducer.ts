@@ -1,5 +1,6 @@
 import { Producer } from 'kafkajs'
 import { v4 as uuidv4 } from 'uuid'
+import { WORTHY_KAFKA_CLIENT_NEW_TOPIC } from './main'
 import { IWorthyEvent } from './WorthyTypes'
 import { IProducerDescription } from './WorthyTypes'
 
@@ -27,31 +28,42 @@ export class WorthyProducer {
 		}
 	}
 
-	public async produce(topic:string, key:string, payload:any, contextId:string) {
+	public async produce(topic:string, eventName:string, payload:any, contextId:string) {
 		// some basic input verifications
-		if ( !this._supportedTopics[topic] || !this._supportedTopics[topic].includes(key)  ) {
-			throw new Error("Unsupported topic/key '" + topic + '/' + key + "'. Known topics are: " +
-							JSON.stringify(this._supportedTopics))
-		}
 		if ( !this._initialized ) {
 			throw new Error("Producer not yet initialized! did you call the 'init' function?")
+		}
+
+		if ( !this._supportedTopics[topic] || !this._supportedTopics[topic].includes(eventName)  ) {
+			throw new Error("Unsupported topic/eventName '" + topic + '/' + eventName + "'. Known topics are: " +
+							JSON.stringify(this._supportedTopics))
+		}
+
+		if ( !contextId ) {
+			throw new Error('contextId argument is not defined! Must pass a contextId to the produce function.')
+		}
+
+		const eventId = uuidv4()
+		if ( contextId === WORTHY_KAFKA_CLIENT_NEW_TOPIC ) {
+			contextId = eventId
 		}
 
 		// Use input to construct a standard IWorthyEvent.
 		const event:IWorthyEvent = {
 			contextId,
 			created: new Date(),
-			id: uuidv4(),
-			key,
+			eventName,
+			id: eventId,
+			key: eventId,
 			originService:process.env.SERVICE_NAME,
 			originServiceVersion:'v1', // TODO
 			payload,
 			topic,
 		}
 
-		Log.debug('Producing to topic ', topic)
+		Log.debug('Producing to topic ', topic, event)
 		await this._producer.send({
-			messages:[{ key:new Buffer(key), value:new Buffer(JSON.stringify(event))}],
+			messages:[{ key:new Buffer(event.key), value:new Buffer(JSON.stringify(event))}],
 			topic,
 		})
 	}

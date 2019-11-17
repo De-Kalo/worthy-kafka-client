@@ -8,6 +8,7 @@ let instance:WorthyConsumer
 export class WorthyConsumer {
 	private readonly _consumer:Consumer
 	private topicRouter:IConsumerDescription = { }
+	private currentContextId:string
 
 	constructor(consumer:Consumer) {
 		this._consumer = consumer
@@ -58,18 +59,38 @@ export class WorthyConsumer {
 					value.topic = value.topic.replace(process.env.KAFKA_PREFIX, '').replace(process.env.ENV + '.', '')
 				}
 				Log.debug('Processing message', value)
-				// is the message key registered with a specific call function?
-				if ( router[topic][message.key.toString()] ) {
-					await router[topic][message.key.toString()](value)
+
+				instance.setCurrentContextId(value.contextId)
+
+				// is the message event name registered with a specific call function?
+				if ( router[topic][value.eventName.toString()] ) {
+					await router[topic][value.eventName.toString()](value)
 				} else if ( router[topic].default ) {
 					await router[topic].default(value)
 				}
 			} catch (err) {
 				Log.error('Error! failed processing message:', message, err)
+			} finally {
+				instance.setCurrentContextId(null)
 			}
 		} else {
 			Log.debug('Got message from unexpected topic ' + topic)
 			throw new Error('Unexpected unknown topic - ' + topic + ' with message:' + JSON.stringify(message))
+		}
+	}
+
+	public getCurrentContext() {
+		return this.currentContextId
+	}
+
+	private setCurrentContextId(contextId:string) {
+		if (process.env.WORTHY_KAFKA_CLIENT_AUTO_SET_CONTEXT === 'true') {
+			// verify we don't have a context leakage.
+			if (contextId && this.currentContextId) {
+				throw new Error(`UNEXPECTED ERROR: currentContextId already exists! current value is: ${this.currentContextId}`)
+			}
+			this.currentContextId = contextId
+			getLog().setMetadata('eventContext', contextId)
 		}
 	}
 

@@ -2,7 +2,7 @@
 export interface IConsumerDescription {
 	// topic name
 	[key:string]:{
-		// key name - 'default' as a wildchar all keys that aren't spoken for.
+		// event name - 'default' as a wildchar - affects all event names that aren't spoken for.
 		[key:string]:(message:IWorthyEvent) => void,
 	}
 }
@@ -12,7 +12,8 @@ export interface IProducerDescription { [key:string]:string[]}
 export interface IWorthyEvent {
 	topic:string,
 	key:string,
-	id:string,                          // GUID (?)
+	id:string,                          // GUID
+	eventName:string,
 	created:Date,
 	received?:Date,
 	originService:string                // service name.

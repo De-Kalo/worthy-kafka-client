@@ -4,6 +4,7 @@ import Signals = NodeJS.Signals
 import { HerokuKafkaCliRunner } from './HerokuKafkaCliRunner'
 import { KafkaOptions, reinitEnv } from './KafkaOptions'
 import { KafkaTopicManager, sleep } from './KafkaTopicManager'
+import { WORTHY_KAFKA_CLIENT_NEW_TOPIC } from './main'
 import { WorthyConsumer } from './WorthyConsumer'
 import { WorthyProducer } from './WorthyProducer'
 import { IWorthyKafkaClientDescription } from './WorthyTypes'
@@ -83,7 +84,7 @@ export class WorthyKafkaClient {
 	 * Initializes the kafka client library. must be called before first usage.
 	 * Should be called just once.
 	 * If a client runs the 'shutdown' command, the init command can be called again to reinitialize the client.
-	 * @param clientDescriptionIn describes the topics and keys a client is planning to consume and produce.
+	 * @param clientDescriptionIn describes the topics and event names a client is planning to consume and produce.
 	 */
 	public async init(clientDescriptionIn:IWorthyKafkaClientDescription) {
 		reinitLog('WorthyKafkaClient', process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL || 'error')
@@ -116,13 +117,17 @@ export class WorthyKafkaClient {
 	/**
 	 *
 	 * @param topic the topic to produce to
-	 * @param key the name of the event we want to produce (currently all event names are the topic names)
+	 * @param eventName the name of the event we want to produce (currently all event names are the topic names)
 	 * @param payload application data to send with the event.
 	 * @param context a context to help tracking related requests.
 	 */
-	public async produce(topic:string, key:string, payload:any, context?:string) {
+	public async produce(topic:string, eventName:string, payload:any, context?:string) {
+		// Are we configured to auto-set the context according to current message being processed?
+		if ( process.env.WORTHY_KAFKA_CLIENT_AUTO_SET_CONTEXT === 'true' ) {
+			context = this._consumer.getCurrentContext() || WORTHY_KAFKA_CLIENT_NEW_TOPIC
+		}
 		const nTopic = WorthyKafkaClient._normalizeTopicName(topic)
-		await this._producer.produce(nTopic, key, payload, context ? context : uuidv4())
+		await this._producer.produce(nTopic, eventName, payload, context)
 	}
 
 	/**
