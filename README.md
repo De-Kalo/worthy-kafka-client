@@ -111,7 +111,7 @@ Here's an example:
 ```javascript
 import {WorthyKafkaClient} from '@worthy-npm/worthy-kafka-client'
 
-// assuming the library is already initialized in a different file..
+// assuming the library was already initialized in a different file..
 WorthyKafkaClient.produce('myTopic', 'eventName', { myData: 123 })
 ``` 
 
