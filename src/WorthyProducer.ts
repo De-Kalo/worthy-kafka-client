@@ -53,7 +53,8 @@ export class WorthyProducer {
 			contextId,
 			created: new Date(),
 			eventName,
-			id: eventId,
+			id:eventId,
+			key:eventName,
 			originService:process.env.SERVICE_NAME,
 			originServiceVersion:'v1', // TODO
 			payload,

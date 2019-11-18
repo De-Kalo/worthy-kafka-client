@@ -62,9 +62,11 @@ export class WorthyConsumer {
 
 				instance.setCurrentContextId(value.contextId)
 
+				// TODO: supporting the old 'key' key alongside the 'eventName' key. after transition ends delete the old.
+				const eventName = (value.eventName || value.key).toString()
 				// is the message event name registered with a specific call function?
-				if ( router[topic][value.eventName.toString()] ) {
-					await router[topic][value.eventName.toString()](value)
+				if ( router[topic][eventName] ) {
+					await router[topic][eventName](value)
 				} else if ( router[topic].default ) {
 					await router[topic].default(value)
 				}

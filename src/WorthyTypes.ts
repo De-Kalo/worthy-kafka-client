@@ -12,6 +12,7 @@ export interface IProducerDescription { [key:string]:string[]}
 export interface IWorthyEvent {
 	topic:string						// Name of the topic to produce to
 	id:string							// GUID - the event id
+	key:string
 	eventName:string
 	created:Date
 	received?:Date						// filled on the consumer side upon processing - for tracking latency
