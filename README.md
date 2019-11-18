@@ -91,16 +91,16 @@ So make sure that any pre-requisite services (like DBs) are initialized before k
 Here's the typescript definition of the event interface:
 ```javascript
 export interface IWorthyEvent {
-	topic:string						// Name of the topic to produce to
-	id:string							// GUID - the event id
+	topic:string                 // Name of the topic to produce to
+	id:string                    // GUID - the event id
 	eventName:string
 	created:Date
-	received?:Date						// filled on the consumer side upon processing - for tracking latency
-	originService:string				// Origin service name.
-	originServiceVersion:string			// version of the service that sent the event
-	contextId:string					// operation context - used for debugging a distributed system. Events that derive
-										// from the processing of other events will have the origin event id here.
-	payload:any                         // application data - as received when calling the produce function.
+	received?:Date               // filled on the consumer side upon processing - for tracking latency
+	originService:string         // Origin service name.
+	originServiceVersion:string  // version of the service that sent the event
+	contextId:string             // operation context - used for debugging a distributed system. Events that derive
+	                             // from the processing of other events will have the origin event id here.
+	payload:any                  // application data - as received when calling the produce function.
 }
 ```
 The event passed to a consumer callback function is of the above structure.
