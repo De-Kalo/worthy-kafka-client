@@ -138,7 +138,7 @@ That's the purpose of the contextId.
 
 There are 2 ways we can maintain this.
 1. Automatically. If an environment variable `WORTHY_KAFKA_CLIENT_AUTO_SET_CONTEXT` is set to `true`,
-the library will automatically set this variable according to the last event that was received. There's 
+the library will automatically set the `contextId` according to the last event that was received. There's 
 a catch here though. In order for this to work - the developer must make sure that only one message is processed
 at any given time. No loose Promises, no parallel processing in the same process, etc. This is a viable
 way for a service to work, and will help make sure to keep the contextId properly. However - you must verify
