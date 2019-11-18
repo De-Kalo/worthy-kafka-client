@@ -44,8 +44,8 @@ simple errors, and be able to perform runtime verification of anything that can 
 For this purpose, the init function requires the declaration of all topics and event names that
 the user is expecting to produce or consume.
 An attempt to produce events that were not pre-declared will result in a failure.
-Similarly, event names that are produced to topics that service is listening to, but that were
-not declared - will not be sent to a callback and will simply disappear.
+Similarly, events in topics the service is listening to, but that were
+not declared - will not be sent to a callback. Instead they will be discarded.
 
 The library will verify that all declared topics exist, and if they do not - it will create them 
 at service initialization time.
@@ -84,8 +84,8 @@ expect to consume and produce. Here are the keys of this object and their explan
    If a default callback is not defined, and the topic receives an event that was not defined 
    in the 'consuming' section - the event will be discarded.
    
-Once initialization is complete, event can start arriving and callbacks will start running. 
-For this reason - make sure that any pre-requisite services (like DBs) are initialized before kafka.
+Once initialization is complete, events can start arriving and callbacks will be called. 
+So make sure that any pre-requisite services (like DBs) are initialized before kafka.
 
 ## Event structure
 Here's the typescript definition of the event interface:
