@@ -125,8 +125,8 @@ According to the approach of the service you're writing, there are 2 ways you ca
 to manage this parameter. Let's discuss this a bit:
 
 ## ContextId
-The context id is a crucial of the architecture that we need to zealously maintain.
-Distributed systems are hard to manage and especially debug. Everything happens asynchronously,
+The context id is a crucial bit of the architecture that we need to zealously maintain.
+Distributed systems are hard to manage and especially hard to debug. Everything happens asynchronously,
 latencies can be substantial, and the order of execution of flows across different services is not 
 something we can rely on. This makes it very difficult to track a specific flow, and separate it
 from other flows that are happening at the same time.
@@ -142,10 +142,13 @@ the library will automatically set this variable according to the last event tha
 a catch here though. In order for this to work - the developer must make sure that only one message is processed
 at any given time. No loose Promises, no parallel processing in the same process, etc. This is a viable
 way for a service to work, and will help make sure to keep the contextId properly. However - you must verify
-a synchronized handling of messages.
+a synchronized handling of messages. When automatically managed, the library will automatically add the current context to the
+logger metadata, so that it will appear in all logs.
 1. Manually. If a developer wants to manage contextId by himself - that's fine. He can use the `contextId` 
 argument when calling produce, and **not** set the above environment variable. Note that if you do
-set the environment variable to 'true', the library will ignore any value you place in the contextId argument.
+set the environment variable to 'true', the library will ignore any value you place in the contextId argument. 
+In this situation, the developer will also have to manually set the metadata for the logger so that the context will
+be automatically sent with all messages.
 
 If you choose the manual approach, you can basically put any string in this variable, but you're
 expected to use the following:
