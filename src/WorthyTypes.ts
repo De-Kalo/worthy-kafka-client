@@ -10,16 +10,16 @@ export interface IConsumerDescription {
 export interface IProducerDescription { [key:string]:string[]}
 
 export interface IWorthyEvent {
-	topic:string,
-	key:string,
-	id:string,                          // GUID
-	eventName:string,
-	created:Date,
-	received?:Date,
-	originService:string                // service name.
-	originServiceVersion:string         // version of the service that sent the event
-	contextId:string                    // operation context - it's the developer responsibility to maintain this.
-	payload:any                         // application data.
+	topic:string						// Name of the topic to produce to
+	id:string							// GUID - the event id
+	eventName:string
+	created:Date
+	received?:Date						// filled on the consumer side upon processing - for tracking latency
+	originService:string				// Origin service name.
+	originServiceVersion:string			// version of the service that sent the event
+	contextId:string					// operation context - used for debugging a distributed system. Events that derive
+										// from the processing of other events will have the origin event id here.
+	payload:any                         // application data - as received when calling the produce function.
 }
 
 export interface IWorthyKafkaClientDescription {

@@ -54,7 +54,6 @@ export class WorthyProducer {
 			created: new Date(),
 			eventName,
 			id: eventId,
-			key: eventId,
 			originService:process.env.SERVICE_NAME,
 			originServiceVersion:'v1', // TODO
 			payload,
@@ -63,7 +62,7 @@ export class WorthyProducer {
 
 		Log.debug('Producing to topic ', topic, event)
 		await this._producer.send({
-			messages:[{ key:new Buffer(event.key), value:new Buffer(JSON.stringify(event))}],
+			messages:[{ key:new Buffer(event.id), value:new Buffer(JSON.stringify(event))}],
 			topic,
 		})
 	}

@@ -1,5 +1,4 @@
 import { Kafka } from 'kafkajs'
-import { v4 as uuidv4 } from 'uuid'
 import Signals = NodeJS.Signals
 import { HerokuKafkaCliRunner } from './HerokuKafkaCliRunner'
 import { KafkaOptions, reinitEnv } from './KafkaOptions'
