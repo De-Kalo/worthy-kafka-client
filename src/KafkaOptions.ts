@@ -22,8 +22,8 @@ const options:IKafkaOptions = {
 		groupId: process.env.SERVICE_NAME + '-' + process.env.ENV,
 		heartbeatInterval:10000,
 		maxInFlightRequests:5,
-		rebalanceTimeout:60000,
-		sessionTimeout:30000,
+		rebalanceTimeout:90000,
+		sessionTimeout:60000,
 	},
 	producer:{
 		allowAutoTopicCreation: false,
