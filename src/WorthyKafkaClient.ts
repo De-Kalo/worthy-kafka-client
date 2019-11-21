@@ -117,7 +117,7 @@ export class WorthyKafkaClient {
 			const requestedTopics = process.env.WORTHY_KAFKA_CLIENT_DEBUG_OFFSETS.split(',')
 			const topics:string[] = []
 			requestedTopics.forEach((t) => {
-				t =  WorthyKafkaClient._normalizeTopicName(t)
+				t =  WorthyKafkaClient._normalizeTopicName(t.trim())
 				if ( !consumingTopics.includes(t) ) {
 					Log.warning(`Topic ${t} requested for offset debugging, but is not consumed by this service. Ignoring`)
 				} else {
