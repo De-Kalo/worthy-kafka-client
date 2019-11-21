@@ -165,6 +165,11 @@ WorthyKafkaClient.produce('topicName', 'eventName', { some: 'data' }, WORTHY_KAF
 The library expects and / or uses the following environment variables to exist:
 * KAFKA_PREFIX - automatically defined by the heroku kafka plugin. No need to define it locally.
 * WORTHY_KAFKA_CLIENT_AUTO_SET_CONTEXT - See the [ContextId](#contextid) section. Optional.
+* WORTHY_KAFKA_CLIENT_DEBUG_OFFSETS - It's possible to enable topic debugging by adding comma separated 
+topic names to this environment variable. The library will print to log metadata about topic & group offsets.
+This will only work if the WORTHY_KAFKA_CLIENT_LOG_LEVEL environment variable is set to 'debug'
+* WORTHY_KAFKA_CLIENT_DEBUG_OFFSETS_INTERVAL - control how often to print topic metadata when
+debugging topic offsets. Defaults to 60000 (ms)
 * SERVICE_NAME - name of the service you're running. Mandatory.
 * STAGE - whiche stage are we on? { test | development | qa | production }. Mandatory.
 * KAFKA_URL - connection string to your kafka borkers. Mandatory. Automatically defined by heroku kafka plugin when in an heroku application.
