@@ -1,6 +1,8 @@
+import { getLog } from '@worthy-npm/worthy-logger'
 import { Admin, ITopicConfig, Kafka } from 'kafkajs'
 import { HerokuKafkaCliRunner } from './HerokuKafkaCliRunner'
 import { KafkaOptions } from './KafkaOptions'
+const Log = getLog('WorthyKafkaClient')
 
 export function sleep(ms:number) {
 	return new Promise((resolve) => setTimeout(resolve, ms))
@@ -149,5 +151,21 @@ export class KafkaTopicManager {
 
 	public async shutdown() {
 		await this._admin.disconnect()
+	}
+
+	public async debugTopicOffsets(topics:string[], index:number = 0) {
+		Log.debug('Topic Debug:', {
+			metadata: await this._admin.fetchTopicMetadata({ topics:[topics[index]] }),
+			offsets: await this._admin.fetchTopicOffsets(topics[index]),
+			// tslint:disable-next-line:object-literal-sort-keys
+			groupOffsets: await this._admin.fetchOffsets({
+				groupId: KafkaOptions.consumer.groupId,
+				topic:topics[index],
+			}),
+		})
+
+		const nextIndex = index >= topics.length - 1 ? 0 : index + 1
+		setTimeout((() => { this.debugTopicOffsets(topics, nextIndex) }).bind(this),
+			parseInt(process.env.WORTHY_KAFKA_CLIENT_DEBUG_OFFSETS_INTERVAL, 10) || 60000)
 	}
 }

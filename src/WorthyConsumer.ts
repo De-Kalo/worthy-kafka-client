@@ -45,7 +45,7 @@ export class WorthyConsumer {
 	 * @param payload - the message payload.
 	 */
 	public async onMessage(payload:EachMessagePayload) {
-		Log.debug('Got message ' + payload.message.key)
+		Log.debug('Got message ' + payload.message.key, payload)
 		const message = payload.message
 		const topic = payload.topic
 		const router = instance.topicRouter
@@ -58,7 +58,7 @@ export class WorthyConsumer {
 					value.received = new Date().toISOString()
 					value.topic = value.topic.replace(process.env.KAFKA_PREFIX, '').replace(process.env.ENV + '.', '')
 				}
-				Log.debug('Processing message', value)
+				Log.debug('Processing message payload:', value)
 
 				instance.setCurrentContextId(value.contextId)
 
@@ -66,10 +66,15 @@ export class WorthyConsumer {
 				const eventName = (value.eventName || value.key).toString()
 				// is the message event name registered with a specific call function?
 				if ( router[topic][eventName] ) {
+					Log.debug(`${value.topic} calling callback function ${router[topic][eventName].name}`)
 					await router[topic][eventName](value)
 				} else if ( router[topic].default ) {
+					Log.debug(`${value.topic} calling default function`)
 					await router[topic].default(value)
+				} else {
+					Log.debug(`${value.topic} no callback function. Skipping.`)
 				}
+				Log.debug(`${value.topic} processing done.`)
 			} catch (err) {
 				Log.error('Error! failed processing message:', message, err)
 			} finally {

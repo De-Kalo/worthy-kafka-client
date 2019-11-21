@@ -111,6 +111,24 @@ export class WorthyKafkaClient {
 
 		// we need to wait for the consumer to be ready to receive messages before returning context.
 		await this._consumer.waitInit()
+
+		// do we want to debug topic offsets?
+		if ( process.env.WORTHY_KAFKA_CLIENT_DEBUG_OFFSETS && process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL === 'debug' ) {
+			const requestedTopics = process.env.WORTHY_KAFKA_CLIENT_DEBUG_OFFSETS.split(',')
+			const topics:string[] = []
+			requestedTopics.forEach((t) => {
+				t =  WorthyKafkaClient._normalizeTopicName(t)
+				if ( !consumingTopics.includes(t) ) {
+					Log.warning(`Topic ${t} requested for offset debugging, but is not consumed by this service. Ignoring`)
+				} else {
+					topics.push(t)
+				}
+			})
+			if ( topics.length > 0 ) {
+				Log.debug(`Starting to debug topic offsets: ${topics}`)
+				this._topicManager.debugTopicOffsets(topics)
+			}
+		}
 	}
 
 	/**
