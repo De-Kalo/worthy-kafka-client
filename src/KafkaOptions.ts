@@ -1,4 +1,6 @@
-import { ConsumerConfig, KafkaConfig, ProducerConfig } from 'kafkajs'
+import { getLog, reinitLog } from '@worthy-npm/worthy-logger'
+import { ILog } from '@worthy-npm/worthy-logger/dist/types'
+import { ConsumerConfig, KafkaConfig, logLevel, ProducerConfig } from 'kafkajs'
 
 interface IKafkaOptions  {
 	connect:KafkaConfig
@@ -15,6 +17,29 @@ const options:IKafkaOptions = {
 	connect:{
 		brokers:[],
 		connectionTimeout: 5000,
+		logCreator: (inlevel:string) => ({ namespace, level, label, log}) => {
+			const translate = {
+				[logLevel.ERROR]:'error',
+				[logLevel.WARN]:'warning',
+				[logLevel.INFO]:'info',
+				[logLevel.DEBUG]:'debug',
+			}
+			// @ts-ignore
+			const logger = reinitLog(`KafkaJs:${namespace}`, translate[inlevel], false)
+			switch ( level ) {
+				case logLevel.DEBUG:
+					logger.debug(log)
+					break
+				case logLevel.INFO:
+					logger.info(log)
+					break
+				case logLevel.WARN:
+					logger.warn(log)
+					break
+				case logLevel.ERROR:
+					logger.error(log)
+			}
+		},
 		requestTimeout: 5000,
 	},
 	consumer:{
