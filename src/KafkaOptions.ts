@@ -1,5 +1,4 @@
-import { getLog, reinitLog } from '@worthy-npm/worthy-logger'
-import { ILog } from '@worthy-npm/worthy-logger/dist/types'
+import { reinitLog } from '@worthy-npm/worthy-logger'
 import { ConsumerConfig, KafkaConfig, logLevel, ProducerConfig } from 'kafkajs'
 
 interface IKafkaOptions  {
@@ -101,7 +100,7 @@ export function reinitEnv() {
 		case 'production':
 		case 'qa':
 			options.topic.replication = 3
-			options.topic.partitions = 3
+			options.topic.partitions = 8
 			break
 		case 'development':
 			options.topic.replication = 1

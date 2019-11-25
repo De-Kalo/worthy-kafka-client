@@ -45,8 +45,7 @@ export class WorthyConsumer {
 	 * @param payload - the message payload.
 	 */
 	public async onMessage(payload:EachMessagePayload) {
-		Log.info('Got message ' + payload.message.key)
-		Log.debug(payload)
+		Log.debug({ message:payload.message.key, payload })
 		const time = new Date().getTime()
 		const message = payload.message
 		const topic = payload.topic
@@ -70,15 +69,15 @@ export class WorthyConsumer {
 
 				// is the message event name registered with a specific call function?
 				if ( router[topic][eventName] ) {
-					Log.debug(`${value.topic} calling callback function ${router[topic][eventName].name}`)
+					Log.debug(`${eventName} calling callback function ${router[topic][eventName].name}`)
 					await router[topic][eventName](value)
 				} else if ( router[topic].default ) {
-					Log.debug(`${value.topic} calling default function`)
+					Log.debug(`${eventName} calling default function`)
 					await router[topic].default(value)
 				} else {
-					Log.info(`${value.topic} no callback function. Skipping.`)
+					Log.debug(`${eventName} no callback function. Skipping.`)
 				}
-				Log.info(`${value.topic} processing done. Duration: ${new Date().getTime() - time} ms`)
+				Log.info(`${eventName} processing done. Duration: ${new Date().getTime() - time} ms`)
 			} catch (err) {
 				Log.error('Error! failed processing message:', message, err)
 			} finally {
