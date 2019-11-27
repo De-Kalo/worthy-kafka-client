@@ -1,6 +1,6 @@
 {
   "name": "@worthy-npm/worthy-kafka-client",
-  "version": "1.0.45",
+  "version": "1.0.47",
   "description": "Easy use of kafka client using standard wrapper for all worthy services",
   "main": "dist/main.js",
   "types": "./dist/main.d.ts",
@@ -21,7 +21,7 @@
   "dependencies": {
     "@types/uuid": "^3.4.5",
     "@worthy-npm/worthy-logger": "^1.0.12",
-    "kafkajs": "^1.9.3",
+    "@worthy-npm/kafkajs-worthy-copy": "^1.11.2",
     "uuid": "^3.3.2"
   },
   "devDependencies": {

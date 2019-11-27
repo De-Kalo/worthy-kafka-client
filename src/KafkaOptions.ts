@@ -1,5 +1,5 @@
 import { reinitLog } from '@worthy-npm/worthy-logger'
-import { ConsumerConfig, KafkaConfig, logLevel, ProducerConfig } from 'kafkajs'
+import { ConsumerConfig, KafkaConfig, logLevel, ProducerConfig } from '@worthy-npm/kafkajs-worthy-copy'
 
 interface IKafkaOptions  {
 	connect:KafkaConfig

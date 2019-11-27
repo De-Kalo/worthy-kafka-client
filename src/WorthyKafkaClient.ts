@@ -1,4 +1,4 @@
-import { Kafka } from 'kafkajs'
+import { Kafka } from '@worthy-npm/kafkajs-worthy-copy'
 import Signals = NodeJS.Signals
 import { HerokuKafkaCliRunner } from './HerokuKafkaCliRunner'
 import { KafkaOptions, reinitEnv } from './KafkaOptions'

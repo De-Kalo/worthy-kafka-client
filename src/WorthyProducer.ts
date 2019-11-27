@@ -1,4 +1,4 @@
-import { Producer } from 'kafkajs'
+import { Producer } from '@worthy-npm/kafkajs-worthy-copy'
 import { v4 as uuidv4 } from 'uuid'
 import { WORTHY_KAFKA_CLIENT_NEW_TOPIC } from './main'
 import { IWorthyEvent } from './WorthyTypes'

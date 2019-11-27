@@ -1,5 +1,5 @@
 import { getLog } from '@worthy-npm/worthy-logger'
-import { Admin, ITopicConfig, Kafka } from 'kafkajs'
+import { Admin, ITopicConfig, Kafka } from '@worthy-npm/kafkajs-worthy-copy'
 import { HerokuKafkaCliRunner } from './HerokuKafkaCliRunner'
 import { KafkaOptions } from './KafkaOptions'
 const Log = getLog('WorthyKafkaClient')

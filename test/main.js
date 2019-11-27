@@ -5,7 +5,8 @@ process.env.ENV = 'development'
 process.env.STAGE = 'development'
 process.env.KAFKA_URL="localhost:9092"
 process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL = 'debug'
-process.env.KAFKAJS_TRACK_CONSUMER_EVENTS = 'HEARTBEAT, START_BATCH_PROCESS, END_BATCH_PROCESS'
+process.env.KAFKAJS_TRACK_CONSUMER_EVENTS = 'START_BATCH_PROCESS, END_BATCH_PROCESS'
+process.env.KAFKAJS_LOG_LEVEL='debug'
 
 // Importing WorthyKafkaClient
 const {WorthyKafkaClient} = require('../dist/main')
@@ -18,13 +19,6 @@ const KNOWN_TOPICS = {
        ITEM_ESTIMATION:"ITEM_ESTIMATION"
    }
 }
-
-process.env.SERVICE_NAME="KafkaLibraryTester"
-process.env.SERVICE_VERSION=1.0
-process.env.HEROKU_APP_NAME="kafka-library-test-service"
-process.env.ENV = 'development'
-process.env.STAGE = 'development'
-process.env.KAFKA_URL="localhost:9092"
 
 // this is the main function that initializes the service
 async function start() {
