@@ -1,4 +1,4 @@
-import { Consumer, EachMessagePayload } from 'kafkajs'
+import { Consumer, ConsumerEvents, EachMessagePayload } from 'kafkajs'
 import { IConsumerDescription } from './WorthyTypes'
 
 import { getLog } from '@worthy-npm/worthy-logger'
@@ -106,5 +106,15 @@ export class WorthyConsumer {
 
 	public async shutdown() {
 		await this._consumer.disconnect()
+	}
+
+	public trackConsumerEvents(events:string[]) {
+		events.forEach((e) => {
+			if ( this._consumer.events.hasOwnProperty(e) ) {
+				this._consumer.on(this._consumer.events[e as keyof ConsumerEvents], (ce) => Log.debug(ce))
+			} else {
+				Log.warn('Requested to track non-existing consumer event ' + e)
+			}
+		})
 	}
 }

@@ -1,3 +1,11 @@
+process.env.SERVICE_NAME="KafkaLibraryTester"
+process.env.SERVICE_VERSION=1.0
+process.env.HEROKU_APP_NAME="kafka-library-test-service"
+process.env.ENV = 'development'
+process.env.STAGE = 'development'
+process.env.KAFKA_URL="localhost:9092"
+process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL = 'debug'
+process.env.KAFKAJS_TRACK_CONSUMER_EVENTS = 'HEARTBEAT, START_BATCH_PROCESS, END_BATCH_PROCESS'
 
 // Importing WorthyKafkaClient
 const {WorthyKafkaClient} = require('../dist/main')

@@ -112,8 +112,16 @@ export class WorthyKafkaClient {
 		// we need to wait for the consumer to be ready to receive messages before returning context.
 		await this._consumer.waitInit()
 
+		this.initializeDebuggingIfNeccesary(consumingTopics)
+	}
+
+	private initializeDebuggingIfNeccesary(consumingTopics:string[]) {
+		// all debugging prints debug logs.. don't bother checking if debug is off.
+		if ( process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL !== 'debug' ) {
+			return
+		}
 		// do we want to debug topic offsets?
-		if ( process.env.WORTHY_KAFKA_CLIENT_DEBUG_OFFSETS && process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL === 'debug' ) {
+		if ( process.env.WORTHY_KAFKA_CLIENT_DEBUG_OFFSETS ) {
 			const requestedTopics = process.env.WORTHY_KAFKA_CLIENT_DEBUG_OFFSETS.split(',')
 			const topics:string[] = []
 			requestedTopics.forEach((t) => {
@@ -128,6 +136,12 @@ export class WorthyKafkaClient {
 				Log.debug(`Starting to debug topic offsets: ${topics}`)
 				this._topicManager.debugTopicOffsets(topics)
 			}
+		}
+
+		// Listen to consumer instrumentation events if requested
+		if ( process.env.KAFKAJS_TRACK_CONSUMER_EVENTS ) {
+			const requestedEvents = process.env.KAFKAJS_TRACK_CONSUMER_EVENTS.split(',').map((e) => e.trim())
+			this._consumer.trackConsumerEvents(requestedEvents)
 		}
 	}
 
