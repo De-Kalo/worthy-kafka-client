@@ -154,15 +154,19 @@ export class KafkaTopicManager {
 	}
 
 	public async debugTopicOffsets(topics:string[], index:number = 0) {
-		Log.debug('Topic Debug:', {
-			metadata: await this._admin.fetchTopicMetadata({ topics:[topics[index]] }),
-			offsets: await this._admin.fetchTopicOffsets(topics[index]),
-			// tslint:disable-next-line:object-literal-sort-keys
-			groupOffsets: await this._admin.fetchOffsets({
-				groupId: KafkaOptions.consumer.groupId,
-				topic:topics[index],
-			}),
-		})
+		try {
+			Log.debug('Topic Debug:', {
+				metadata: await this._admin.fetchTopicMetadata({topics: [topics[index]]}),
+				offsets: await this._admin.fetchTopicOffsets(topics[index]),
+				// tslint:disable-next-line:object-literal-sort-keys
+				groupOffsets: await this._admin.fetchOffsets({
+					groupId: KafkaOptions.consumer.groupId,
+					topic: topics[index],
+				}),
+			})
+		} catch (e) {
+			Log.error("Failure in 'debugTopicOffsets", e)
+		}
 
 		const nextIndex = index >= topics.length - 1 ? 0 : index + 1
 		setTimeout((() => { this.debugTopicOffsets(topics, nextIndex) }).bind(this),
