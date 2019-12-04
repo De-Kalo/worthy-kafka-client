@@ -53,9 +53,10 @@ export class WorthyConsumer {
 
 		// is the current topic registered? (is it possible that it isn't?(
 		if ( router[topic] ) {
+			let value:IWorthyEvent
 			try {
 				// the value is expected to be a json string. if it isn't - an exception will be thrown.
-				const value:IWorthyEvent = message.value ? JSON.parse(message.value.toString()) : ''
+				value = message.value ? JSON.parse(message.value.toString()) : ''
 				if ( typeof value === 'object' ) {
 					value.received = new Date()
 					value.topic = value.topic.replace(process.env.KAFKA_PREFIX, '').replace(process.env.ENV + '.', '')
@@ -86,7 +87,7 @@ export class WorthyConsumer {
 					Log.debug(`${eventName} no callback function. Skipping.`)
 				}
 			} catch (err) {
-				Log.error('Error! failed processing message:', message, err)
+				Log.error('Error! failed processing message:', value, err)
 			} finally {
 				instance.resetMetadata()
 			}
