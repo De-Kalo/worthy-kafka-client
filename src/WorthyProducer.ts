@@ -63,7 +63,7 @@ export class WorthyProducer {
 
 		Log.debug('Producing to topic ', topic, event)
 		await this._producer.send({
-			messages:[{ key:new Buffer(event.id), value:new Buffer(JSON.stringify(event))}],
+			messages:[{ key:Buffer.from(event.id), value:Buffer.from(JSON.stringify(event))}],
 			topic,
 		})
 	}

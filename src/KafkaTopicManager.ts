@@ -1,5 +1,5 @@
-import { getLog } from '@worthy-npm/worthy-logger'
 import { Admin, ITopicConfig, Kafka } from '@worthy-npm/kafkajs-worthy-copy'
+import { getLog } from '@worthy-npm/worthy-logger'
 import { HerokuKafkaCliRunner } from './HerokuKafkaCliRunner'
 import { KafkaOptions } from './KafkaOptions'
 const Log = getLog('WorthyKafkaClient')
@@ -28,6 +28,7 @@ export class KafkaTopicManager {
 	 */
 	private async _connect() {
 		if ( !this._connected ) {
+			Log.debug('Admin interface connecting to kafka')
 			await this._admin.connect()
 			this._connected = true
 		}
@@ -38,10 +39,12 @@ export class KafkaTopicManager {
 	 * @private
 	 */
 	private async _updateTopics() {
+		Log.debug('Admin interface updating topics.')
 		// topic metadata contains all topics...
 		const MD = await this._admin.fetchTopicMetadata({ topics:[]})
 		// @ts-ignore   // there is a bug in the index.d.ts file that was fixed but not released to npm yet. TODO remove.
 		this._knownTopics = MD.topics.map((x) => x.name)
+		Log.debug({ message: 'Found the following known topics', topics: this._knownTopics })
 	}
 
 	public async verifyTopics(topics:string[]) : Promise<string[]> {
@@ -66,6 +69,8 @@ export class KafkaTopicManager {
 		// make sure we're connected before running any operation.
 		await this._connect()
 
+		Log.info({ message: 'Creating topics', topics })
+
 		// prepare topic creation structure, and iterate all topics
 		const topicsToCreate:ITopicConfig[] = []
 		for (let topic of topics) {
@@ -74,6 +79,7 @@ export class KafkaTopicManager {
 
 			// if using heroku cli - create the topic (the cli doesn't allow multiple topic creation in single command.
 			// if not using the cli - add to the create list for later processing.
+			Log.debug({ message:'Creating topic', topicName: topic})
 			if ( KafkaOptions.useHerokuCli ) {
 				HerokuKafkaCliRunner.createTopic(topic)
 			} else {
@@ -124,6 +130,7 @@ export class KafkaTopicManager {
 	}
 
 	public async createTopic(topic:string) {
+		Log.debug({ message:'Creating topic', topicName: topic })
 		if ( KafkaOptions.useHerokuCli ) {
 			HerokuKafkaCliRunner.createTopic(topic)
 		} else {
@@ -139,6 +146,7 @@ export class KafkaTopicManager {
 
 	private async _waitForTopic(topic:string, existence:boolean = true, timeout:number=90000) {
 		const start = new Date().getTime()
+		Log.debug({ message: 'Waiting for topic to be ready', topicName: topic })
 		while ( await this.topicExists(topic) !== existence ) {
 			// verifying timeout not passed.
 			if ( new Date().getTime() - start > timeout ) {
@@ -156,7 +164,7 @@ export class KafkaTopicManager {
 	public async debugTopicOffsets(topics:string[], index:number = 0) {
 		try {
 			Log.debug('Topic Debug:', {
-				metadata: await this._admin.fetchTopicMetadata({topics: [topics[index]]}),
+				metadata: await this._admin.fetchTopicMetadata({ topics: [topics[index]]}),
 				offsets: await this._admin.fetchTopicOffsets(topics[index]),
 				// tslint:disable-next-line:object-literal-sort-keys
 				groupOffsets: await this._admin.fetchOffsets({
@@ -165,7 +173,7 @@ export class KafkaTopicManager {
 				}),
 			})
 		} catch (e) {
-			Log.error("Failure in 'debugTopicOffsets", e)
+			Log.warning("Failure in 'debugTopicOffsets", e)
 		}
 
 		const nextIndex = index >= topics.length - 1 ? 0 : index + 1

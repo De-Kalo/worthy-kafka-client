@@ -1,11 +1,15 @@
+import { getLog } from '@worthy-npm/worthy-logger'
 import { execSync } from 'child_process'
 import { KafkaOptions } from './KafkaOptions'
+const Log = getLog('WorthyKafkaClient')
 
 export class HerokuKafkaCliRunner {
 
 	public static runCmd(cmd:string, confirm:boolean = false) {
-		return execSync('heroku kafka:' + cmd + ' -a ' + process.env.HEROKU_APP_NAME +
-					(confirm ? ' --confirm ' + process.env.HEROKU_APP_NAME : ''))
+		const str = 'heroku kafka:' + cmd + ' -a ' + process.env.HEROKU_APP_NAME +
+			(confirm ? ' --confirm ' + process.env.HEROKU_APP_NAME : '')
+		Log.debug({ message:'Running CLI command', command:'str' })
+		return execSync(str)
 	}
 
 	public static createTopic(topic:string) {

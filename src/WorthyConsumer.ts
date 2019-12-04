@@ -1,5 +1,5 @@
 import { Consumer, ConsumerEvents, EachMessagePayload } from '@worthy-npm/kafkajs-worthy-copy'
-import { IConsumerDescription } from './WorthyTypes'
+import { IConsumerDescription, IWorthyEvent } from './WorthyTypes'
 
 import { getLog } from '@worthy-npm/worthy-logger'
 const Log = getLog('WorthyKafkaClient')
@@ -45,43 +45,50 @@ export class WorthyConsumer {
 	 * @param payload - the message payload.
 	 */
 	public async onMessage(payload:EachMessagePayload) {
-		Log.debug({ message:payload.message.key, payload })
 		const time = new Date().getTime()
 		const message = payload.message
 		const topic = payload.topic
 		const router = instance.topicRouter
+		Log.debug({ message:'Got message', topic, key: message.key.toString() })
+
 		// is the current topic registered? (is it possible that it isn't?(
 		if ( router[topic] ) {
 			try {
 				// the value is expected to be a json string. if it isn't - an exception will be thrown.
-				const value = message.value ? JSON.parse(message.value.toString()) : ''
+				const value:IWorthyEvent = message.value ? JSON.parse(message.value.toString()) : ''
 				if ( typeof value === 'object' ) {
-					value.received = new Date().toISOString()
+					value.received = new Date()
 					value.topic = value.topic.replace(process.env.KAFKA_PREFIX, '').replace(process.env.ENV + '.', '')
 				}
 
-				instance.setCurrentContextId(value.contextId)
+				instance.setCurrentContextId(value)
 
 				// TODO: supporting the old 'key' key alongside the 'eventName' key. after transition ends delete the old.
 				const eventName = (value.eventName || value.key).toString()
-				Log.info(`Processing event ${eventName}`)
-				Log.debug('Message payload:', value)
+				let callback:(event:IWorthyEvent) => void = null
+				let callbackName:string = ''
 
 				// is the message event name registered with a specific call function?
 				if ( router[topic][eventName] ) {
-					Log.debug(`${eventName} calling callback function ${router[topic][eventName].name}`)
-					await router[topic][eventName](value)
+					callbackName = router[topic][eventName].name
+					callback = router[topic][eventName]
 				} else if ( router[topic].default ) {
-					Log.debug(`${eventName} calling default function`)
-					await router[topic].default(value)
+					callbackName = 'default'
+					callback = router[topic].default
+				}
+
+				if ( callback ) {
+					Log.info(`Processing event ${eventName} with callback: ${callbackName}`)
+					Log.debug('Message payload:', value)
+					await callback(value)
+					Log.info(`${eventName} processing done. Duration: ${new Date().getTime() - time} ms`)
 				} else {
 					Log.debug(`${eventName} no callback function. Skipping.`)
 				}
-				Log.info(`${eventName} processing done. Duration: ${new Date().getTime() - time} ms`)
 			} catch (err) {
 				Log.error('Error! failed processing message:', message, err)
 			} finally {
-				instance.setCurrentContextId(null)
+				instance.resetMetadata()
 			}
 		} else {
 			Log.debug('Got message from unexpected topic ' + topic)
@@ -93,14 +100,23 @@ export class WorthyConsumer {
 		return this.currentContextId
 	}
 
-	private setCurrentContextId(contextId:string) {
+	private setCurrentContextId(value:IWorthyEvent) {
 		if (process.env.WORTHY_KAFKA_CLIENT_AUTO_SET_CONTEXT === 'true') {
 			// verify we don't have a context leakage.
-			if (contextId && this.currentContextId) {
+			if (value.contextId && this.currentContextId) {
 				throw new Error(`UNEXPECTED ERROR: currentContextId already exists! current value is: ${this.currentContextId}`)
 			}
-			this.currentContextId = contextId
-			getLog().setMetadata('eventContext', contextId)
+			this.currentContextId = value.contextId
+			getLog().setMetadata('eventContext', value.contextId)
+			getLog().setMetadata('currentEvent', value.eventName)
+		}
+	}
+
+	private resetMetadata() {
+		if (process.env.WORTHY_KAFKA_CLIENT_AUTO_SET_CONTEXT === 'true') {
+			this.currentContextId = null
+			getLog().setMetadata('eventContext', null)
+			getLog().setMetadata('currentEvent', null)
 		}
 	}
 

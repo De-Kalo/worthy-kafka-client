@@ -4,12 +4,16 @@ process.env.HEROKU_APP_NAME="kafka-library-test-service"
 process.env.ENV = 'development'
 process.env.STAGE = 'development'
 process.env.KAFKA_URL="localhost:9092"
-process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL = 'debug'
-process.env.KAFKAJS_TRACK_CONSUMER_EVENTS = 'START_BATCH_PROCESS, END_BATCH_PROCESS'
-process.env.KAFKAJS_LOG_LEVEL='debug'
+//process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL = 'debug'
+//process.env.KAFKAJS_TRACK_CONSUMER_EVENTS = 'START_BATCH_PROCESS, END_BATCH_PROCESS'
+process.env.WORTHY_KAFKA_CLIENT_AUTO_SET_CONTEXT='true'
+//process.env.KAFKAJS_LOG_LEVEL='debug'
 
 // Importing WorthyKafkaClient
 const {WorthyKafkaClient} = require('../dist/main')
+const {getLog} = require('@worthy-npm/worthy-logger')
+
+const Log = getLog("",1)
 // Defining a constant list of known topics and keys for safe usage.
 const KNOWN_TOPICS = {
    ITEMS:{

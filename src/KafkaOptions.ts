@@ -1,5 +1,6 @@
-import { reinitLog } from '@worthy-npm/worthy-logger'
 import { ConsumerConfig, KafkaConfig, logLevel, ProducerConfig } from '@worthy-npm/kafkajs-worthy-copy'
+import { getLog, reinitLog } from '@worthy-npm/worthy-logger'
+const Log = getLog('WorthyKafkaClient')
 
 interface IKafkaOptions  {
 	connect:KafkaConfig
@@ -23,8 +24,9 @@ const options:IKafkaOptions = {
 				[logLevel.INFO]:'info',
 				[logLevel.DEBUG]:'debug',
 			}
+			const offset = namespace === 'Connection' ? 3 : 2
 			// @ts-ignore
-			const logger = reinitLog(`KafkaJs:${namespace}`, translate[inlevel], false)
+			const logger = reinitLog(`KafkaJs:${namespace}`, translate[inlevel], false, offset)
 			switch ( level ) {
 				case logLevel.DEBUG:
 					logger.debug(log)
@@ -122,5 +124,7 @@ export function reinitEnv() {
 
 	options.consumer.groupId = (process.env.KAFKA_PREFIX || '') + process.env.SERVICE_NAME + '-' + process.env.ENV
 	options.useHerokuCli = process.env.ENV !== 'development'
+
+	Log.debug({ message:'Initializing kafka client environment', options })
 }
 export const KafkaOptions:IKafkaOptions = options

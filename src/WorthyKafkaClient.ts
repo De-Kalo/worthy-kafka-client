@@ -86,7 +86,7 @@ export class WorthyKafkaClient {
 	 * @param clientDescriptionIn describes the topics and event names a client is planning to consume and produce.
 	 */
 	public async init(clientDescriptionIn:IWorthyKafkaClientDescription) {
-		reinitLog('WorthyKafkaClient', process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL || 'error')
+		reinitLog('WorthyKafkaClient', process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL || 'info')
 
 		// basic setup of required objects.
 		await this._clientSetup()
@@ -134,6 +134,7 @@ export class WorthyKafkaClient {
 			})
 			if ( topics.length > 0 ) {
 				Log.debug(`Starting to debug topic offsets: ${topics}`)
+				// noinspection JSIgnoredPromiseFromCall - ignored on purpose
 				this._topicManager.debugTopicOffsets(topics)
 			}
 		}
