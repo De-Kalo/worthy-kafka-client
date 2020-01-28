@@ -1,4 +1,4 @@
-import { Consumer, ConsumerEvents, EachMessagePayload } from '@worthy-npm/kafkajs-worthy-copy'
+import { Consumer, ConsumerEvents, EachMessagePayload } from 'kafkajs'
 import { IConsumerDescription, IWorthyEvent } from './WorthyTypes'
 
 import { getLog } from '@worthy-npm/worthy-logger'

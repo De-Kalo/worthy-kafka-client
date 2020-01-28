@@ -1,4 +1,4 @@
-import { Producer } from '@worthy-npm/kafkajs-worthy-copy'
+import { Producer } from 'kafkajs'
 import { v4 as uuidv4 } from 'uuid'
 import { WORTHY_KAFKA_CLIENT_NEW_TOPIC } from './main'
 import { IWorthyEvent } from './WorthyTypes'
@@ -28,7 +28,7 @@ export class WorthyProducer {
 		}
 	}
 
-	public async produce(topic:string, eventName:string, payload:any, contextId:string) {
+	public async produce(topic:string, eventName:string, payload:any, contextId:string, messageKeyName?:string) {
 		// some basic input verifications
 		if ( !this._initialized ) {
 			throw new Error("Producer not yet initialized! did you call the 'init' function?")
@@ -61,9 +61,27 @@ export class WorthyProducer {
 			topic,
 		}
 
+		/**
+		 * Kafka messages are distributed to partitions according to the message key, so that
+		 * same key will always get to the same partition.
+		 * We want to have messages related to the same object (item, user etc.) arrive at the
+		 * same partition, so that we can be sure that they are processed sequentially.
+		 *
+		 * The order of the options below represent the priority in which we want to decide the
+		 * id of an object. if user requested a specific key - use it. otherwise go from the specific
+		 * to the general. a user can have several bundles and bundle can have several items,
+		 * so item is the most specific among the three.
+		 */
+		const messageKey = payload[messageKeyName] ||
+			payload.id ||
+			payload.item_id || payload.itemId ||
+			payload.bundle_id || payload.bundleId ||
+			payload.user_id || payload.userId ||
+			event.id
+
 		Log.debug('Producing to topic ', topic, event)
 		await this._producer.send({
-			messages:[{ key:Buffer.from(event.id), value:Buffer.from(JSON.stringify(event))}],
+			messages:[{ key:Buffer.from(`${messageKey}`), value:Buffer.from(JSON.stringify(event))}],
 			topic,
 		})
 	}

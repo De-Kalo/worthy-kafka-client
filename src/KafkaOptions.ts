@@ -1,4 +1,4 @@
-import { ConsumerConfig, KafkaConfig, logLevel, ProducerConfig } from '@worthy-npm/kafkajs-worthy-copy'
+import { ConsumerConfig, KafkaConfig, logLevel, ProducerConfig } from 'kafkajs'
 import { getLog, reinitLog } from '@worthy-npm/worthy-logger'
 const Log = getLog('WorthyKafkaClient')
 

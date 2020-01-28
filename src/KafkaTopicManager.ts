@@ -1,4 +1,4 @@
-import { Admin, ITopicConfig, Kafka } from '@worthy-npm/kafkajs-worthy-copy'
+import { Admin, ITopicConfig, Kafka } from 'kafkajs'
 import { getLog } from '@worthy-npm/worthy-logger'
 import { HerokuKafkaCliRunner } from './HerokuKafkaCliRunner'
 import { KafkaOptions } from './KafkaOptions'
