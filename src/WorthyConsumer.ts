@@ -59,6 +59,7 @@ export class WorthyConsumer {
 				value = message.value ? JSON.parse(message.value.toString()) : ''
 				if ( typeof value === 'object' ) {
 					value.received = new Date()
+					value.partition = payload.partition
 					value.topic = value.topic.replace(process.env.KAFKA_PREFIX, '').replace(process.env.ENV + '.', '')
 				}
 

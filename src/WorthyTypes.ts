@@ -13,6 +13,7 @@ export interface IWorthyEvent {
 	topic:string						// Name of the topic to produce to
 	id:string							// GUID - the event id
 	key:string
+	partition?:number					// kafka partition the event comes from. filled by the consumer obviously.
 	eventName:string
 	created:Date
 	received?:Date						// filled on the consumer side upon processing - for tracking latency
