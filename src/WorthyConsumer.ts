@@ -2,7 +2,7 @@ import { Consumer, ConsumerEvents, EachMessagePayload } from 'kafkajs'
 import { IConsumerDescription, IWorthyEvent } from './WorthyTypes'
 
 import { getLog } from '@worthy-npm/worthy-logger'
-const Log = getLog('WorthyKafkaClient')
+const Log = getLog('WorthyKafkaClient:Consumer')
 
 let instance:WorthyConsumer
 export class WorthyConsumer {
@@ -111,6 +111,9 @@ export class WorthyConsumer {
 			getLog().setMetadata('eventContext', value.contextId)
 			getLog().setMetadata('currentEvent', value.eventName)
 		}
+		// In any case, set the context for the kafka client logger.
+		Log.setMetadata('eventContext', value.contextId)
+		Log.setMetadata('currentEvent', value.eventName)
 	}
 
 	private resetMetadata() {
@@ -119,6 +122,8 @@ export class WorthyConsumer {
 			getLog().setMetadata('eventContext', null)
 			getLog().setMetadata('currentEvent', null)
 		}
+		Log.setMetadata('eventContext', null)
+		Log.setMetadata('currentEvent', null)
 	}
 
 	public async shutdown() {
