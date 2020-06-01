@@ -241,4 +241,10 @@ export class WorthyKafkaClient {
 	}
 }
 
-export const instance = new WorthyKafkaClient()
+// @ts-ignore
+if ( typeof global.worthyKafkaClient === 'undefiend' ) {
+	// @ts-ignore
+	global.worthyKafkaClient = new WorthyKafkaClient()
+}
+// @ts-ignore
+export const instance = global.worthyKafkaClient
