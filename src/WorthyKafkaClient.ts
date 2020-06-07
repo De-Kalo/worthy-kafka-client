@@ -242,7 +242,7 @@ export class WorthyKafkaClient {
 }
 
 // @ts-ignore
-if ( typeof global.worthyKafkaClient === 'undefiend' ) {
+if ( typeof global.worthyKafkaClient === 'undefined' ) {
 	// @ts-ignore
 	global.worthyKafkaClient = new WorthyKafkaClient()
 }

@@ -17,7 +17,7 @@ const options:IKafkaOptions = {
 	connect:{
 		brokers:[],
 		connectionTimeout: 5000,
-		logCreator: (inlevel:string) => ({ namespace, level, label, log}) => {
+		logCreator: (inlevel:logLevel) => ({ namespace, level, label, log}) => {
 			const translate = {
 				[logLevel.ERROR]:'error',
 				[logLevel.WARN]:'warning',
