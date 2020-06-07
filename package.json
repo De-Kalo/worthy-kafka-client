@@ -19,14 +19,14 @@
   "author": "Noam Shabat",
   "license": "UNLICENSED",
   "dependencies": {
-    "@types/uuid": "^3.4.5",
-    "@worthy-npm/worthy-logger": "^1.0.15",
-    "kafkajs": "^1.11.0",
-    "uuid": "^3.3.2"
+    "@types/uuid": "^3.4.8",
+    "@worthy-npm/worthy-logger": "^1.0.16",
+    "kafkajs": "^1.12.0",
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
-    "@types/node": "^12.6.6",
+    "@types/node": "^12.12.34",
     "tslint": "^5.20.1",
-    "typescript": "^3.5.3"
+    "typescript": "^3.8.3"
   }
 }
