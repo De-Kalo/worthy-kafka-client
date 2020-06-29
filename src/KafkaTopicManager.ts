@@ -1,8 +1,8 @@
-import { Admin, ITopicConfig, Kafka } from 'kafkajs'
 import { getLog } from '@worthy-npm/worthy-logger'
+import { Admin, ITopicConfig, Kafka } from 'kafkajs'
 import { HerokuKafkaCliRunner } from './HerokuKafkaCliRunner'
 import { KafkaOptions } from './KafkaOptions'
-const Log = getLog('WorthyKafkaClient')
+const Log = getLog('WorthyKafkaClient', undefined, process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL || 'info')
 
 export function sleep(ms:number) {
 	return new Promise((resolve) => setTimeout(resolve, ms))

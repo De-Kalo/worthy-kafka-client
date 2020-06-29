@@ -3,6 +3,9 @@
         "./src/*.ts",
         "./src/**/*.ts"
     ],
+	"exclude": [
+		"./node_modules/*/**"
+	],
     "compilerOptions": {
         "noImplicitAny": true,
         "target": "es5",

@@ -1,6 +1,6 @@
-import { ConsumerConfig, KafkaConfig, logLevel, ProducerConfig } from 'kafkajs'
 import { getLog, reinitLog } from '@worthy-npm/worthy-logger'
-const Log = getLog('WorthyKafkaClient')
+import { ConsumerConfig, KafkaConfig, logLevel, ProducerConfig } from 'kafkajs'
+const Log = getLog('WorthyKafkaClient', undefined, process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL || 'info')
 
 interface IKafkaOptions  {
 	connect:KafkaConfig

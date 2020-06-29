@@ -5,7 +5,7 @@ import { IWorthyEvent } from './WorthyTypes'
 import { IProducerDescription } from './WorthyTypes'
 
 import { getLog } from '@worthy-npm/worthy-logger'
-const Log = getLog('WorthyKafkaClient')
+const Log = getLog('WorthyKafkaClient:Producer', undefined, process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL || 'info')
 
 export class WorthyProducer {
 

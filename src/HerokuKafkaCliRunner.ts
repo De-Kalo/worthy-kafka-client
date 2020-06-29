@@ -1,7 +1,7 @@
 import { getLog } from '@worthy-npm/worthy-logger'
 import { execSync } from 'child_process'
 import { KafkaOptions } from './KafkaOptions'
-const Log = getLog('WorthyKafkaClient')
+const Log = getLog('WorthyKafkaClient', undefined, process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL || 'info')
 
 export class HerokuKafkaCliRunner {
 

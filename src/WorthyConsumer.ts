@@ -2,7 +2,7 @@ import { Consumer, ConsumerEvents, EachMessagePayload } from 'kafkajs'
 import { IConsumerDescription, IWorthyEvent } from './WorthyTypes'
 
 import { getLog } from '@worthy-npm/worthy-logger'
-const Log = getLog('WorthyKafkaClient:Consumer')
+const Log = getLog('WorthyKafkaClient:Consumer', undefined, process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL || 'info')
 
 let instance:WorthyConsumer
 export class WorthyConsumer {
