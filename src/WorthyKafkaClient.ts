@@ -6,7 +6,7 @@ import { KafkaTopicManager, sleep } from './KafkaTopicManager'
 import { WORTHY_KAFKA_CLIENT_NEW_TOPIC } from './main'
 import { WorthyConsumer } from './WorthyConsumer'
 import { WorthyProducer } from './WorthyProducer'
-import { IWorthyKafkaClientDescription } from './WorthyTypes'
+import { IConsumerDescription, IWorthyKafkaClientDescription } from './WorthyTypes'
 
 import { getLog, reinitLog } from '@worthy-npm/worthy-logger'
 const Log = getLog('WorthyKafkaClient')
@@ -32,12 +32,13 @@ export class WorthyKafkaClient {
 		})
 	}
 
-	private async _clientSetup() {
+	private async _clientSetup(consuming:boolean) {
 		// Initialize the client environment. required once.
 		reinitEnv()
 
 		// When in shared kafka environment, we need to verify the consumer group first.
-		if (KafkaOptions.useHerokuCli) { await this.verifyConsumerGroup() }
+		// only relevant when the client is expected to consume something.
+		if (KafkaOptions.useHerokuCli && consuming) { await this.verifyConsumerGroup() }
 
 		// Initialize all used objects.
 		this._client = new Kafka(KafkaOptions.connect)
@@ -89,7 +90,7 @@ export class WorthyKafkaClient {
 		reinitLog('WorthyKafkaClient', process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL || 'info')
 
 		// basic setup of required objects.
-		await this._clientSetup()
+		await this._clientSetup(Object.keys(clientDescriptionIn.consuming).length > 0)
 
 		// in a shared kafka environment, we need to normalize topic names and obfuscate this from the users.
 		const clientDescription = WorthyKafkaClient._normalizeTopicNames(clientDescriptionIn)
