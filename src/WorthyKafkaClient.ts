@@ -90,7 +90,8 @@ export class WorthyKafkaClient {
 		reinitLog('WorthyKafkaClient', process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL || 'info')
 
 		// basic setup of required objects.
-		await this._clientSetup(Object.keys(clientDescriptionIn.consuming).length > 0)
+		await this._clientSetup(clientDescriptionIn.consuming
+			&& Object.keys(clientDescriptionIn.consuming).length > 0)
 
 		// in a shared kafka environment, we need to normalize topic names and obfuscate this from the users.
 		const clientDescription = WorthyKafkaClient._normalizeTopicNames(clientDescriptionIn)
