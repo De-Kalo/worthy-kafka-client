@@ -43,7 +43,9 @@ export class WorthyKafkaClient {
 		// Initialize all used objects.
 		this._client = new Kafka(KafkaOptions.connect)
 		this._producer = new WorthyProducer()
-		this._consumer = new WorthyConsumer(this._client.consumer(KafkaOptions.consumer))
+		if (consuming) {
+			this._consumer = new WorthyConsumer(this._client.consumer(KafkaOptions.consumer))
+		}
 		this._topicManager = new KafkaTopicManager(this._client)
 	}
 
@@ -108,13 +110,13 @@ export class WorthyKafkaClient {
 		await this._producer.init(this._client.producer(KafkaOptions.producer), clientDescription.producing)
 
 		// initialize consumer
-		await this._topicManager.verifyTopics(consumingTopics)
-		await this._consumer.addTopics(clientDescription.consuming)
-
-		// we need to wait for the consumer to be ready to receive messages before returning context.
-		await this._consumer.waitInit()
-
-		this.initializeDebuggingIfNeccesary(consumingTopics)
+		if ( consumingTopics.length > 0 ) {
+			await this._topicManager.verifyTopics(consumingTopics)
+			await this._consumer.addTopics(clientDescription.consuming)
+			// we need to wait for the consumer to be ready to receive messages before returning context.
+			await this._consumer.waitInit()
+			this.initializeDebuggingIfNeccesary(consumingTopics)
+		}
 	}
 
 	private initializeDebuggingIfNeccesary(consumingTopics:string[]) {
