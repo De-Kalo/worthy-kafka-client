@@ -80,7 +80,12 @@ export class WorthyConsumer {
 				}
 
 				if ( callback ) {
-					Log.info(`Processing event ${eventName} with callback: ${callbackName}`)
+					Log.info({
+						callback: callbackName,
+						message: 'Processing event',
+						name: eventName,
+						receiveLatencyMs: value.received.getTime() - new Date(value.created).getTime(),
+					})
 					Log.debug('Message payload:', value)
 					await callback(value)
 					Log.info(`${eventName} processing done. Duration: ${new Date().getTime() - time} ms`)
