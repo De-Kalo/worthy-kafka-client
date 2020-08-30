@@ -160,7 +160,7 @@ export class WorthyKafkaClient {
 	public async produce(topic:string, eventName:string, payload:any, context?:string, messageKeyName?:string) {
 		// Are we configured to auto-set the context according to current message being processed?
 		if ( process.env.WORTHY_KAFKA_CLIENT_AUTO_SET_CONTEXT === 'true' ) {
-			context = this._consumer.getCurrentContext() || WORTHY_KAFKA_CLIENT_NEW_TOPIC
+			context = (this._consumer && this._consumer.getCurrentContext()) || WORTHY_KAFKA_CLIENT_NEW_TOPIC
 		}
 		const nTopic = WorthyKafkaClient._normalizeTopicName(topic)
 		await this._producer.produce(nTopic, eventName, payload, context, messageKeyName)
