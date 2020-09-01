@@ -1,5 +1,7 @@
 import { getLog, reinitLog } from '@worthy-npm/worthy-logger'
+import { Stages } from '@worthy-npm/worthy-logger/dist/types'
 import { ConsumerConfig, KafkaConfig, logLevel, ProducerConfig } from 'kafkajs'
+
 const Log = getLog('WorthyKafkaClient', undefined, process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL || 'info')
 
 interface IKafkaOptions  {
@@ -75,7 +77,7 @@ function verifyEnvironment() {
 	}
 
 	// when not in development we need ssl certification for kafka, and make sure the app name is available.
-	if ( process.env.STAGE && process.env.STAGE !== 'development' ) {
+	if ( process.env.STAGE && [Stages.prod, Stages.qa].includes(process.env.STAGE as Stages) ) {
 		requiredVariables.KAFKA_CLIENT_CERT_KEY = 'A certification key for ssl connection. provided by heroku kafka plugin in non development environments.'
 		requiredVariables.KAFKA_CLIENT_CERT = 'A certification for ssl connection. provided by heroku kafka plugin in non development environments.'
 		requiredVariables.KAFKA_TRUSTED_CERT = 'A certificate authorization certification for ssl connection. profided by heroku kafka plugin in non development environment.'
@@ -105,6 +107,7 @@ export function reinitEnv() {
 			options.topic.partitions = 8
 			break
 		case 'development':
+		case 'test':
 			options.topic.replication = 1
 			options.topic.partitions = 1
 	}
@@ -123,7 +126,7 @@ export function reinitEnv() {
 	}
 
 	options.consumer.groupId = (process.env.KAFKA_PREFIX || '') + process.env.SERVICE_NAME + '-' + process.env.ENV
-	options.useHerokuCli = process.env.ENV !== 'development'
+	options.useHerokuCli = !['development', 'test'].includes(process.env.ENV)
 
 	Log.debug({ message:'Initializing kafka client environment', options })
 }
