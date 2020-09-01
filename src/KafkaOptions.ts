@@ -50,6 +50,7 @@ const options:IKafkaOptions = {
 		groupId: process.env.SERVICE_NAME + '-' + process.env.ENV,
 		heartbeatInterval:10000,
 		maxInFlightRequests:5,
+		maxWaitTimeInMs:100,
 		rebalanceTimeout:90000,
 		sessionTimeout:60000,
 	},
