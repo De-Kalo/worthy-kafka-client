@@ -111,12 +111,18 @@ export class WorthyKafkaClient {
 
 		// initialize consumer
 		if ( consumingTopics.length > 0 ) {
-			await this._topicManager.verifyTopics(consumingTopics)
-			await this._consumer.addTopics(clientDescription.consuming)
-			// we need to wait for the consumer to be ready to receive messages before returning context.
-			await this._consumer.waitInit()
-			this.initializeDebuggingIfNeccesary(consumingTopics)
+			// do not wait for consumer to finish initializing.
+			this.consumerInit(consumingTopics, clientDescription)
+				.then(() => Log.info('Consumer initialized'))
 		}
+	}
+
+	private async consumerInit(consumingTopics:string[], clientDescription:IWorthyKafkaClientDescription) {
+		await this._topicManager.verifyTopics(consumingTopics)
+		await this._consumer.addTopics(clientDescription.consuming)
+		// we need to wait for the consumer to be ready to receive messages before returning context.
+		await this._consumer.waitInit()
+		this.initializeDebuggingIfNeccesary(consumingTopics)
 	}
 
 	private initializeDebuggingIfNeccesary(consumingTopics:string[]) {
