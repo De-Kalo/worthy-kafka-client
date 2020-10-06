@@ -114,6 +114,10 @@ export class WorthyKafkaClient {
 			// do not wait for consumer to finish initializing.
 			this.consumerInit(consumingTopics, clientDescription)
 				.then(() => Log.info('Consumer initialized'))
+				.catch((err) => {
+					Log.error('KAFKA CONSUMER FAILED INITIALIZATION', err)
+					process.exit(1)
+				})
 		}
 	}
 
