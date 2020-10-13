@@ -155,10 +155,10 @@ expected to use the following:
 * If you have a context (from an event you are currently processing) - use the contextId of that event.
 * If you do not have a context, or want to force the begining of a new context, use the following constant:
 ```javascript
-import { WorthyKafkaClient, WORTHY_KAFKA_CLIENT_NEW_TOPIC } from '@worthy-npm/worthy-kafka-client'
+import { WorthyKafkaClient, WORTHY_KAFKA_CLIENT_NEW_CONTEXT } from '@worthy-npm/worthy-kafka-client'
 
 // this creates a new context id based on the event id that starts it.
-WorthyKafkaClient.produce('topicName', 'eventName', { some: 'data' }, WORTHY_KAFKA_CLIENT_NEW_TOPIC)
+WorthyKafkaClient.produce('topicName', 'eventName', { some: 'data' }, WORTHY_KAFKA_CLIENT_NEW_CONTEXT)
 ``` 
 
 ## Environment variables

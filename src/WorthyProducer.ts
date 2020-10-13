@@ -1,6 +1,6 @@
 import { Producer } from 'kafkajs'
 import { v4 as uuidv4 } from 'uuid'
-import { WORTHY_KAFKA_CLIENT_NEW_TOPIC } from './main'
+import { WORTHY_KAFKA_CLIENT_NEW_CONTEXT, WORTHY_KAFKA_CLIENT_NEW_CONTEXT_OLD } from './main'
 import { IWorthyEvent } from './WorthyTypes'
 import { IProducerDescription } from './WorthyTypes'
 
@@ -44,7 +44,7 @@ export class WorthyProducer {
 		}
 
 		const eventId = uuidv4()
-		if ( contextId === WORTHY_KAFKA_CLIENT_NEW_TOPIC ) {
+		if ( contextId === WORTHY_KAFKA_CLIENT_NEW_CONTEXT || contextId === WORTHY_KAFKA_CLIENT_NEW_CONTEXT_OLD ) {
 			contextId = eventId
 		}
 

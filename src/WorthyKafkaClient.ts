@@ -3,7 +3,7 @@ import Signals = NodeJS.Signals
 import { HerokuKafkaCliRunner } from './HerokuKafkaCliRunner'
 import { KafkaOptions, reinitEnv } from './KafkaOptions'
 import { KafkaTopicManager, sleep } from './KafkaTopicManager'
-import { WORTHY_KAFKA_CLIENT_NEW_TOPIC } from './main'
+import { WORTHY_KAFKA_CLIENT_NEW_CONTEXT } from './main'
 import { WorthyConsumer } from './WorthyConsumer'
 import { WorthyProducer } from './WorthyProducer'
 import { IConsumerDescription, IWorthyKafkaClientDescription } from './WorthyTypes'
@@ -170,7 +170,7 @@ export class WorthyKafkaClient {
 	public async produce(topic:string, eventName:string, payload:any, context?:string, messageKeyName?:string) {
 		// Are we configured to auto-set the context according to current message being processed?
 		if ( process.env.WORTHY_KAFKA_CLIENT_AUTO_SET_CONTEXT === 'true' ) {
-			context = (this._consumer && this._consumer.getCurrentContext()) || WORTHY_KAFKA_CLIENT_NEW_TOPIC
+			context = (this._consumer && this._consumer.getCurrentContext()) || WORTHY_KAFKA_CLIENT_NEW_CONTEXT
 		}
 		const nTopic = WorthyKafkaClient._normalizeTopicName(topic)
 		await this._producer.produce(nTopic, eventName, payload, context, messageKeyName)
