@@ -32,7 +32,7 @@ export class WorthyKafkaClient {
 		})
 	}
 
-	private async _clientSetup(consuming:boolean) {
+	private async _clientSetup(consuming:boolean, onError?:(...args:any[]) => void) {
 		// Initialize the client environment. required once.
 		reinitEnv()
 
@@ -44,7 +44,7 @@ export class WorthyKafkaClient {
 		this._client = new Kafka(KafkaOptions.connect)
 		this._producer = new WorthyProducer()
 		if (consuming) {
-			this._consumer = new WorthyConsumer(this._client.consumer(KafkaOptions.consumer))
+			this._consumer = new WorthyConsumer(this._client.consumer(KafkaOptions.consumer), onError)
 		}
 		this._topicManager = new KafkaTopicManager(this._client)
 	}
@@ -88,12 +88,12 @@ export class WorthyKafkaClient {
 	 * If a client runs the 'shutdown' command, the init command can be called again to reinitialize the client.
 	 * @param clientDescriptionIn describes the topics and event names a client is planning to consume and produce.
 	 */
-	public async init(clientDescriptionIn:IWorthyKafkaClientDescription) {
+	public async init(clientDescriptionIn:IWorthyKafkaClientDescription, onError?:(...args:any[]) => void) {
 		reinitLog('WorthyKafkaClient', process.env.WORTHY_KAFKA_CLIENT_LOG_LEVEL || 'info')
 
 		// basic setup of required objects.
 		await this._clientSetup(clientDescriptionIn.consuming
-			&& Object.keys(clientDescriptionIn.consuming).length > 0)
+			&& Object.keys(clientDescriptionIn.consuming).length > 0, onError)
 
 		// in a shared kafka environment, we need to normalize topic names and obfuscate this from the users.
 		const clientDescription = WorthyKafkaClient._normalizeTopicNames(clientDescriptionIn)

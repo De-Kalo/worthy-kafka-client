@@ -9,10 +9,19 @@ export class WorthyConsumer {
 	private readonly _consumer:Consumer
 	private topicRouter:IConsumerDescription = { }
 	private currentContextId:string
+	private onErrorCB?:(...args:any[]) => void
 
-	constructor(consumer:Consumer) {
+	constructor(consumer:Consumer, onError:(...args:any[]) => void) {
 		this._consumer = consumer
+		this.onErrorCB = onError
 		instance = this
+	}
+
+	private onError(...args:any[]) {
+		Log.error(...args)
+		if (this.onErrorCB) {
+			this.onErrorCB(...args)
+		}
 	}
 
 	public async waitInit() {
@@ -33,7 +42,7 @@ export class WorthyConsumer {
 				Log.debug('Subscribing to topic', topic )
 				await this._consumer.subscribe({ topic})
 			} catch (err) {
-				Log.error('Failed subscribing to topic ' + topic, err)
+				this.onError('Failed subscribing to topic ' + topic, err)
 			}
 			// adding to router. to consider - to we need to verify the function was not already registered?
 			this.topicRouter[topic] = topics[topic]
@@ -93,7 +102,7 @@ export class WorthyConsumer {
 					Log.debug(`${eventName} no callback function. Skipping.`)
 				}
 			} catch (err) {
-				Log.error('Error! failed processing message:', value, err)
+				this.onError('Error! failed processing message:', value, err)
 			} finally {
 				instance.resetMetadata()
 			}
