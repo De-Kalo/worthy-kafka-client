@@ -18,9 +18,10 @@ export class WorthyConsumer {
 	}
 
 	private onError(...args:any[]) {
-		Log.error(...args)
 		if (this.onErrorCB) {
 			this.onErrorCB(...args)
+		} else {
+			Log.error(...args)
 		}
 	}
 
