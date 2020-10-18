@@ -103,7 +103,7 @@ export class WorthyConsumer {
 					Log.debug(`${eventName} no callback function. Skipping.`)
 				}
 			} catch (err) {
-				this.onError('Error! failed processing message:', value, err)
+				instance.onError('Error! failed processing message:', value, err)
 			} finally {
 				instance.resetMetadata()
 			}
