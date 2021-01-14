@@ -1,6 +1,6 @@
 {
   "name": "@worthy-npm/worthy-kafka-client",
-  "version": "1.0.80",
+  "version": "1.0.81",
   "description": "Easy use of kafka client using standard wrapper for all worthy services",
   "main": "dist/main.js",
   "types": "./dist/main.d.ts",
@@ -25,11 +25,11 @@
     "uuid": "^3.4.0"
   },
   "peerDependencies": {
-    "@worthy-npm/worthy-logger": "^1.0.24"
+    "@worthy-npm/worthy-logger": "^1.0.28"
   },
   "devDependencies": {
-    "@worthy-npm/worthy-logger": "^1.0.24",
-    "@types/node": "^12.12.34",
+    "@types/node": "^14.14.20",
+    "@worthy-npm/worthy-logger": "^1.0.28",
     "tslint": "^5.20.1",
     "typescript": "^3.8.3"
   }

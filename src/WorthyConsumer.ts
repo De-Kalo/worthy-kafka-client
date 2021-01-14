@@ -73,35 +73,41 @@ export class WorthyConsumer {
 					value.topic = value.topic.replace(process.env.KAFKA_PREFIX, '').replace(process.env.ENV + '.', '')
 				}
 
-				instance.setCurrentContextId(value)
+				// The new method of Log.runWithContext makes this obsolete.
+				// instance.setCurrentContextId(value)
+				await Log.runWithContext({
+					eventId: value.id,
+					eventName: value.eventName,
+					contextId: value.contextId,
+				}, async () => {
+					// TODO: supporting the old 'key' key alongside the 'eventName' key. after transition ends delete the old.
+					const eventName = (value.eventName || value.key).toString()
+					let callback:(event:IWorthyEvent) => void = null
+					let callbackName:string = ''
 
-				// TODO: supporting the old 'key' key alongside the 'eventName' key. after transition ends delete the old.
-				const eventName = (value.eventName || value.key).toString()
-				let callback:(event:IWorthyEvent) => void = null
-				let callbackName:string = ''
+					// is the message event name registered with a specific call function?
+					if ( router[topic][eventName] ) {
+						callbackName = router[topic][eventName].name
+						callback = router[topic][eventName]
+					} else if ( router[topic].default ) {
+						callbackName = 'default'
+						callback = router[topic].default
+					}
 
-				// is the message event name registered with a specific call function?
-				if ( router[topic][eventName] ) {
-					callbackName = router[topic][eventName].name
-					callback = router[topic][eventName]
-				} else if ( router[topic].default ) {
-					callbackName = 'default'
-					callback = router[topic].default
-				}
-
-				if ( callback ) {
-					Log.info({
-						callback: callbackName,
-						message: 'Processing event',
-						name: eventName,
-						receiveLatencyMs: value.received.getTime() - new Date(value.created).getTime(),
-					})
-					Log.debug('Message payload:', value)
-					await callback(value)
-					Log.info(`${eventName} processing done. Duration: ${new Date().getTime() - time} ms`)
-				} else {
-					Log.debug(`${eventName} no callback function. Skipping.`)
-				}
+					if ( callback ) {
+						Log.info({
+							callback: callbackName,
+							message: 'Processing event',
+							name: eventName,
+							receiveLatencyMs: value.received.getTime() - new Date(value.created).getTime(),
+						})
+						Log.debug('Message payload:', value)
+						await callback(value)
+						Log.info(`${eventName} processing done. Duration: ${new Date().getTime() - time} ms`)
+					} else {
+						Log.debug(`${eventName} no callback function. Skipping.`)
+					}
+				})
 			} catch (err) {
 				instance.onError('Error! failed processing message:', value, err)
 			} finally {
