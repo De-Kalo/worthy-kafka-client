@@ -103,9 +103,12 @@ export function reinitEnv() {
 	// change options by environment.
 	switch ( process.env.STAGE ) {
 		case 'production':
-		case 'qa':
 			options.topic.replication = 3
 			options.topic.partitions = 8
+			break
+		case 'qa':
+			options.topic.replication = 1
+			options.topic.partitions = 6
 			break
 		case 'development':
 		case 'test':
