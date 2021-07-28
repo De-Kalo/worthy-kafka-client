@@ -187,3 +187,12 @@ This variable is defined automatically when installing the `dyno metadata` plugi
 ```
 heroku labs:enable runtime-dyno-metadata -a <app name>
 ```
+
+# Online Course
+For the sake of future generations, I've recorded an online course going over the entire code base.
+The course has 6 chapters, and you can find them here:
+1. [Introduction](https://worthy-university.s3.amazonaws.com/packages/worthy-kafka-client/1+-+Introduction/demo.html)
+2. [Initialization flow](https://worthy-university.s3.amazonaws.com/packages/worthy-kafka-client/2+-+Initialization+flow/demo.html)
+3. [Consuming & Producing](https://worthy-university.s3.amazonaws.com/packages/worthy-kafka-client/3+-+Consuming+%26+Producing/demo.html)
+
+**Note**: When you click on the links above the sound would be turned off by default. click the speaker on the bottom left part of the screen to turn it on.
