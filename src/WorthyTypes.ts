@@ -9,6 +9,11 @@ export interface IConsumerDescription {
 
 export interface IProducerDescription { [key:string]:string[]}
 
+export interface IBulkSchemaDescription {
+    [key: string]: {
+        [key: string]: any;
+    };
+}
 export interface IWorthyEvent {
 	topic:string						// Name of the topic to produce to
 	id:string							// GUID - the event id
@@ -26,5 +31,6 @@ export interface IWorthyEvent {
 
 export interface IWorthyKafkaClientDescription {
 	consuming:IConsumerDescription,
-	producing:IProducerDescription
+	producing:IProducerDescription,
+	bulkProducingSchema?: IBulkSchemaDescription
 }
